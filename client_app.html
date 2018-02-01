@@ -112,7 +112,9 @@
     <!-- Timelines -->
     <div id=med class='jumbotron text-center'>
         <h2>Interaktivní reprezentace dat</h2>
-
+        <div id="ini">
+            <input class='form-control' onclick="init()" type=submit value='Inicializovat síť' />
+        </div>
     </div>
     <div class="canv_class" id="canv">
 
@@ -283,6 +285,7 @@
                     }
 
                 }
+            // if( )
         });
         }
 
@@ -366,13 +369,16 @@
             });
         }
 
-        for (var i = 0; i <= 2; i++) {
-            (function(index) {
-                setTimeout(function() { source_processing(index);
-                    invoke();}, 2000);
-            })(i);
+        function init()
+        {
+            for (var i = 0; i <= li_sources.length; i++) {
+                /* (function(index) {
+                     setTimeout(function() {
+                         invoke();}, 2000);
+                 })(i);*/
+                source_processing(i);
+            }
         }
-
 
         /*  setTimeout(function(){
               source_processing();
@@ -404,6 +410,7 @@
         {
 
             var src = document.getElementById("source").value;
+            document.getElementById("source").value = '';
             var check = li_sources.find(check => check.source === src);
             if (check != undefined )
             {
@@ -741,6 +748,15 @@
 
 
 
+            var mynetwork = document.getElementById('canv');
+            var x = - mynetwork.clientWidth / 2 + 50;
+            var y = - mynetwork.clientHeight / 2 + 50;
+            var step = 70;
+
+            for (var i =0; i < li_sources.length; i++)
+            {
+                nodes.push({id: 1000+i, x: 0, y: 100 + (step*i), label: li_sources[i].source, color: 'blue', value: 1, fixed: true, physics:false});
+            }
 
 
             /*  for (i = 1; i < count; i++) {
@@ -753,10 +769,10 @@
                 edges: edges
             };
             var options = {
-                /* interaction: {
-                     navigationButtons: true,
-                     keyboard: true
-                 },*/
+                interaction: {
+                    navigationButtons: true,
+                    keyboard: true
+                },
 
                 nodes: {
                     shape: 'dot',
