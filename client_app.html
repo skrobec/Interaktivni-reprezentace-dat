@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Timeline Analyzer</title>
 
-  
+
 
     <script type="text/javascript" src="js/jquery.min.js"></script>
     <script type="text/javascript" src="js/rdf4j-client.js"></script>
@@ -25,7 +25,7 @@
 
 </head>
 <body>
-    <!-- Navigation 
+    <!-- Navigation
     <nav class="navbar navbar-inverse">
         <div class="container-fluid">
             <div class="navbar-header">
@@ -48,7 +48,7 @@
                 <li><a href=main.php>Funkce</a></li>
                 <li><a href=zamestnanci.php>Refresh</a></li>
                 <li><a href=oddeleni.php>Návod­</a></li>
-                
+
 
             </ul>
         </div>
@@ -57,9 +57,33 @@
     <div class=source_class>
         <div class="src">
             <h2>Výběr zdrojů</h2>
-            <label class="checkbox-inline"><input type="checkbox" value="">Zdroj1</label>
-            <label class="checkbox-inline"><input type="checkbox" value="">Option 2</label>
-            <label class="checkbox-inline"><input type="checkbox" value="">Option 3</label>
+            <table class="">
+                <tr>
+                    <th>
+                        <div class="space">
+                            <input class='form-control c_box' id="source" list="browsers" name="browser">
+                            <datalist id="browsers">
+                                <option value="RESPEKT">
+                                <option value="iROZHLAS">
+                                <option value="DVTV">
+
+                            </datalist>
+                        </div>
+                    </th>
+                    <th>
+                        <div class="space">
+                            <input onclick="add()" class='form-control c_box' type="submit">
+                        </div>
+                    </th>
+
+                    <th>
+                        <div class="space">
+                            <ul class="list-inline" id="adder"></ul>
+                        </div>
+                    </th>
+                </tr>
+            </table>
+
         </div>
     </div>
 
@@ -88,11 +112,11 @@
     <!-- Timelines -->
     <div id=med class='jumbotron text-center'>
         <h2>Interaktivní reprezentace dat</h2>
-       
+
     </div>
-        <div class="canv_class" id="canv">
-        
-        </div>
+    <div class="canv_class" id="canv">
+
+    </div>
 
     <div class="content_class" id="cont">
         <h2>Zobrazení dat prvků</h2>
@@ -110,13 +134,13 @@
                 <tr>
                     <td height="200px"><p id="text_field">Prostor pro zobrazení textových dat.</p></td>
                     <td id="photo_field" height="200px"><img src="img.jpg" alt="" style="width:200px; height:auto;"></td>
-                    <td id="url_field" height="200px" ><a>https://www.irozhlas.cz/veda-technologie/chytre-chodniky-i-lampy-praha-mohla-byt-smart-city-priklad-si-vezme-z-londyna_1708081944_rez</a></td>
+                    <td id="url_field" height="200px"><a>https://www.irozhlas.cz/veda-technologie/chytre-chodniky-i-lampy-praha-mohla-byt-smart-city-priklad-si-vezme-z-londyna_1708081944_rez</a></td>
                     <td id="link_field" height="200px">Žádný spojený příspěvek</td>
                 </tr>
             </tbody>
         </table>
     </div>
-   
+
 
 
 
@@ -154,11 +178,14 @@
 
 
         const source = 'http://nesfit.github.io/resource/ta#twitter-timeline-DVTVcz';
+
+        var source_structure = [];
+        var li_sources = [];
         var promises_array = [];
         var push_promises = [];
         var dates= []; // struktura pro datum
         var object_nodes = [];
-        var distanceArray = []; 
+        var distanceArray = [];
         var distanceClasses = []; // struktura pro tridy vzdalenosti dle id
         var relations = [];
         var src_date = [];
@@ -166,7 +193,7 @@
         var photo_data = [];
         var URL_data = [];
         var link_data = [];
-       // source_processing(0);
+        // source_processing(0);
 
         function source_processing(idx)
         {
@@ -175,14 +202,14 @@
                 promise_processing(idx);
             }
         }
-       
+
         var idk = 1;
         var dt = 1;
         var cr = 0;
         var dat;
         var ct;
         var col = 0;
-       nodes.push({ id: 0, label: "start",  x: 0, y: 0, color: 'red'});
+        nodes.push({ id: 0, label: "start",  x: 0, y: 0, color: 'red'});
         function promise_processing(n, nodes_id) {
             //col++;
             TA.client.getObject(sources[n]).then(function (timeline) {
@@ -215,206 +242,291 @@
                         for (var i = 0; i < (xxxx.length/20); i++) {
                             xxxx=  xxxx.slice(0, 20+(i*20)) + '\n' + xxxx.slice(20+(i*20));
                         }
-                        
+
                         ct++;
-                       
+
 
                         object_nodes.push({id: idk,content :{ id: idk , label: xxxx, x: 0, y: 0, color: colors[col]  }});
                         text_data.push({id: idk,content:xxxx});
 
                         if (idk == 40 || idk == 80 || idk == 120)
                             col++;
-                       
-                       // nodes.push({ id: idk , label: "k",  color: colors[col] });
-                       // nodes.push({ id: idk , label: "k",  group: col });
+
+                        // nodes.push({ id: idk , label: "k",  color: colors[col] });
+                        // nodes.push({ id: idk , label: "k",  group: col });
 
                         if (idk != 40 && idk != 80 && idk != 120)
                             edges.push({ from: idk , to: idk-1, color:{color:'rgba(30,200,200,0.8)' }});
-                            
-                        
-                  /*      if (idk <= 40 )
-                            edges.push({ from: idk , to: 1, color:{color:'rgba(30,200,200,0.8)' }});
 
-                        
-                        if (idk >= 40 && idk <= 80)
-                            edges.push({ from: idk , to: 41, color:{color:'rgba(30,200,200,0.8)' }});
 
-                        
-                        if (idk >= 80 && idk <= 120)
-                            edges.push({ from: idk , to: 121, color:{color:'rgba(30,200,200,0.8)' }}); */           
-                                    
-                        idk=idk+1;                       
-                                 
+                        /*      if (idk <= 40 )
+                                  edges.push({ from: idk , to: 1, color:{color:'rgba(30,200,200,0.8)' }});
+
+
+                              if (idk >= 40 && idk <= 80)
+                                  edges.push({ from: idk , to: 41, color:{color:'rgba(30,200,200,0.8)' }});
+
+
+                              if (idk >= 80 && idk <= 120)
+                                  edges.push({ from: idk , to: 121, color:{color:'rgba(30,200,200,0.8)' }}); */
+
+                        idk=idk+1;
+
                     }else if (type == "Image") {
-                      
+
                         photo_data.push({id: idk,content:'<a href="' + val.sourceUrl + '"><img style="' + "width:200px; height:auto;" + '" src="' + val.sourceUrl + '" alt=""></a>'});
                     } else if (type == "URLContent") {
-                       
+
                         URL_data.push({id: idk,content:'URL: <a href="' + val.sourceUrl + '">' + val.text + '</a>'});
                     } else {
-                       
+
                     }
 
-           }
+                }
+        });
+        }
+
+        /*  function promise_processing(n,nodes_id)
+          {
+              TA.client.getObject(sources[n]).then(function(timeline) {
+                  //init the title etc
+                  var title = timeline.rdfs_label;
+
+                  //nodes.push({ id: 1800, label: "sss", group: 8, x: 0, y:100 });
+
+                  //load and add the entries
+                  TA.getEntries(sources[n]).then(entries => {
+                      for (var i = 0; i < entries.length; i++) {
+                          var date = new Date(entries[i].timestamp);
+                          dat = date;
+                          dates.push({id: dt++,datum: date});
+                          src_date.push(date);
+                         // console.log(date);
+                          var promise = Promise.all(TA.loadEntryContents(entries[i])).then(values => {
+                              for (var j = 0; j < values.length; j++) {
+                                  var val = values[j];
+                                  var type = TA.client.getRDFObjectType(val);
+                                  links(val.URI,dat,ct);
+                                  if (type == "TextContent") {
+                                      var inc = i + j + 1;
+                                      xxxx = val.text;
+                                      ct++;
+                                      var push = new Promise( () => {
+
+                                          object_nodes.push({id: idk,content :{ id: idk , label: xxxx, group: 0, x: 0, y: 0 }});
+                                      // nodes.push({ id: idk , label: xxxx, group: 0 });
+                                      edges.push({ from: idk , to: 0 });
+
+                                      idk=idk+1;
+
+
+
+                                  });
+
+
+
+                                  push_promises.push(push);
+                                  }
+
+                                  }
+                      });
+
+                  promises_array.push(promise);
+              }
+              }).then(
+                  Promise.all(promises_array).then( () => {
+
+                      Promise.all(push_promises).then( () => {console.log(push_promises);});
+          })
+          );
+          });
+
+          }*/
+
+        function links(URI,datesi,kk)
+        {
+            TA.loadLinks(URI).then(function(links) {
+                console.log(idk);
+                if (links.length > 0) {
+                    //console.log('Links for ' + URI);
+
+
+                    for (var i = 0; i < links.length; i++) {
+                        var link = links[i];
+                        var dtime = new Date(link.dtime);
+                        relations.push({id:kk, source_time:src_date[kk-1].toLocaleString(), destination_time:dtime.toLocaleString(), solved:false });
+                        link_data.push({id:kk,content:'<dd>' +
+                    '<span class="linkname">' + link.label + '</span> ' +
+                    '<a href="#" class="proflabel">' + link.srclabel + '</a> ' +
+                    '(<span class="etext">' + link.text + '</span>) ' +
+                '</dd>'});
+
+                    }
+                }
             });
         }
 
-      /*  function promise_processing(n,nodes_id)
+        for (var i = 0; i <= 2; i++) {
+            (function(index) {
+                setTimeout(function() { source_processing(index);
+                    invoke();}, 2000);
+            })(i);
+        }
+
+
+        /*  setTimeout(function(){
+              source_processing();
+          }, 2000);*/
+
+        function choser()
         {
-            TA.client.getObject(sources[n]).then(function(timeline) {
-                //init the title etc
-                var title = timeline.rdfs_label;
-              
-                //nodes.push({ id: 1800, label: "sss", group: 8, x: 0, y:100 });
-               
-                //load and add the entries
-                TA.getEntries(sources[n]).then(entries => {
-                    for (var i = 0; i < entries.length; i++) {
-                        var date = new Date(entries[i].timestamp);
-                        dat = date;
-                        dates.push({id: dt++,datum: date});
-                        src_date.push(date);
-                       // console.log(date);
-                        var promise = Promise.all(TA.loadEntryContents(entries[i])).then(values => {
-                            for (var j = 0; j < values.length; j++) {
-                                var val = values[j];
-                                var type = TA.client.getRDFObjectType(val);
-                                links(val.URI,dat,ct);
-                                if (type == "TextContent") {
-                                    var inc = i + j + 1;
-                                    xxxx = val.text;
-                                    ct++;
-                                    var push = new Promise( () => {
+            var fnc = document.getElementById("sel").value;
+            if (fnc == "1")
+                foc();
+            else if (fnc == "2")
+                funkce2();
+            else if (fnc == "3")
+                funkce3();
+        }
 
-                                        object_nodes.push({id: idk,content :{ id: idk , label: xxxx, group: 0, x: 0, y: 0 }});
-                                    // nodes.push({ id: idk , label: xxxx, group: 0 });
-                                    edges.push({ from: idk , to: 0 });
-                                    
-                                    idk=idk+1;
-                                    
-                                   
+        function funkce2()
+        {
 
-                                });
-                                
+        }
 
-                            
-                                push_promises.push(push);
-                                }
+        function funkce3()
+        {
 
-                                }
-                    });
 
-                promises_array.push(promise);
-            }
-            }).then(
-                Promise.all(promises_array).then( () => {
+        }
+        var id1 = 0;
+        function add()
+        {
 
-                    Promise.all(push_promises).then( () => {console.log(push_promises);});
-        })
-        );
-        });
-     
-        }*/
-
-            function links(URI,datesi,kk)
+            var src = document.getElementById("source").value;
+            var check = li_sources.find(check => check.source === src);
+            if (check != undefined )
             {
-                TA.loadLinks(URI).then(function(links) {
-                   console.log(idk);
-                    if (links.length > 0) {
-                        //console.log('Links for ' + URI);
-                                      
-
-                        for (var i = 0; i < links.length; i++) {
-                            var link = links[i];
-                            var dtime = new Date(link.dtime);
-                            relations.push({id:kk, source_time:src_date[kk-1].toLocaleString(), destination_time:dtime.toLocaleString(), solved:false });
-                            link_data.push({id:kk,content:'<dd>' +
-						'<span class="linkname">' + link.label + '</span> ' + 
-						'<a href="#" class="proflabel">' + link.srclabel + '</a> ' + 
-						'(<span class="etext">' + link.text + '</span>) ' +
-					'</dd>'});
-
-                        }
-                    }
-                });
+                alert("jiz zadano");
             }
-          
-            for (var i = 0; i <= 2; i++) {
-                (function(index) {
-                    setTimeout(function() { source_processing(index);
-                        invoke();}, 2000);
-                })(i);
-            }
-
-
-          /*  setTimeout(function(){
-                source_processing();
-            }, 2000);*/
-
-            function choser()
+            else
             {
-                var fnc = document.getElementById("sel").value;
-                if (fnc == "1")
-                    foc();
-                else if (fnc == "2")
-                    funkce2();
-                else if (fnc == "3")
-                    funkce3();
+                li_sources.push({id: id1, source: src, content: '<li id=' + id1 +'><a onclick=delet(' +id1+') href=#>'  + src +'</li>' });
+                var k = document.getElementById('adder').innerHTML;
+                document.getElementById('adder').innerHTML = k + '<li id=' + id1 +'><a onclick=delet(' +id1+') href=#>'  + src +'</li>';
+                source_parse(src,0);
+                id1++;
             }
 
-            function funkce2()
+        }
+        function source_parse(src,swit)
+        {
+
+            console.log(src);
+            if(src == "DVTV")
             {
-               
+                if(swit==0)
+                    source_structure.push('http://nesfit.github.io/resource/ta#twitter-timeline-DVTVcz');
+                else
+                {
+                    source_structure.splice(source_structure.indexOf('http://nesfit.github.io/resource/ta#twitter-timeline-DVTVcz'),1);
+                }
+            }
+            else if(src == "iROZHLAS")
+            {
+                if(swit==0)
+                    source_structure.push('http://nesfit.github.io/resource/ta#twitter-timeline-iROZHLAScz');
+                else
+                {
+                    source_structure.splice(source_structure.indexOf('http://nesfit.github.io/resource/ta#twitter-timeline-iROZHLAScz'),1);
+                }
+            }
+            else if(src == "RESPEKT")
+            {
+                if(swit==0)
+                    source_structure.push('http://nesfit.github.io/resource/ta#twitter-timeline-RESPEKT_CZ');
+                else
+                {
+                    source_structure.splice(source_structure.indexOf('http://nesfit.github.io/resource/ta#twitter-timeline-RESPEKT_CZ'),1);
+                }
+            }
+        }
+        function delet(idf)
+        {
+            alert(idf);
+            var str = "";
+            var len = li_sources.length;
+            var ck = false;
+            var indx = 0;
+            for(var i =0; i < len; i++)
+            {
+                if(idf == li_sources[i].id)
+                {
+                    console.log(li_sources[i].id);
+                    ck=true;
+                    indx = i;
+                    continue;
+                }
+
+
+                str = str + li_sources[i].content;
+            }
+            if (ck == true)
+            {
+                source_parse(li_sources[indx].source,1);
+                li_sources.splice(indx,1);
+
             }
 
-            function funkce3()
-            {
-               
-             
-            }
-      
-            var lastdate;
-            var ar_index=0;
-         function foc() {
-               // updateValues();
-             var datum = document.getElementById("para").value;
-              console.log(datum);
-            
-            
+            console.log(source_structure);
+            console.log(li_sources);
+            console.log(str);
+            document.getElementById('adder').innerHTML = str ;
+
+        }
+
+        var lastdate;
+        var ar_index=0;
+        function foc() {
+            // updateValues();
+            var datum = document.getElementById("para").value;
+            console.log(datum);
+
+
             // var result = distanceClasses.find(result => result.time === datum);
-             var result = distanceClasses.filter(result => result.time === datum);
-             if(result === undefined)
-             {
-                 alert("datum nenalezeno");
-             }            
-             else
-             {
-                 console.log(result);
-                 console.log(result[0].content.id);
-                 if (datum == lastdate)
-                 {
-                     ar_index++;
-                     if(ar_index >= result.length )
-                         ar_index=0;
-                 }
-                 lastdate=datum;
+            var result = distanceClasses.filter(result => result.time === datum);
+            if(result === undefined)
+            {
+                alert("datum nenalezeno");
+            }
+            else
+            {
+                console.log(result);
+                console.log(result[0].content.id);
+                if (datum == lastdate)
+                {
+                    ar_index++;
+                    if(ar_index >= result.length )
+                        ar_index=0;
+                }
+                lastdate=datum;
 
-                 var nodeId = result[ar_index].content.id;             
-                 var options = {
-                     // position: {x:positionx,y:positiony}, // this is not relevant when focusing on nodes
-                     scale: 1.0,
-                     offset: {x:0,y:0},
-                     animation: {
-                         duration: 1000,
-                         easingFunction: 'easeInQuad'
-                     }
-                 };
-                 // statusUpdateSpan.innerHTML = 'Focusing on node: ' + nodeId;
-                 // finishMessage = 'Node: ' + nodeId + ' in focus.';
-                 network.focus(nodeId,options);
-             }
-                 
-         }
+                var nodeId = result[ar_index].content.id;
+                var options = {
+                    // position: {x:positionx,y:positiony}, // this is not relevant when focusing on nodes
+                    scale: 1.0,
+                    offset: {x:0,y:0},
+                    animation: {
+                        duration: 1000,
+                        easingFunction: 'easeInQuad'
+                    }
+                };
+                // statusUpdateSpan.innerHTML = 'Focusing on node: ' + nodeId;
+                // finishMessage = 'Node: ' + nodeId + ' in focus.';
+                network.focus(nodeId,options);
+            }
+
+        }
 
         function circleX(distance, coreX , coreY , angle)
         {
@@ -485,13 +597,8 @@
 
             var result = text_data.find(result => result.id === id);
             document.getElementById('text_field').innerHTML = result.content;
-            
 
-           /* result = photo_data.find(result => result.id === 200);
-            if(result === undefined)
-                console.log(result);
-            else
-                console.log("lel");*/
+
 
             result = photo_data.find(result => result.id === id);
             if(result === undefined)
@@ -510,7 +617,7 @@
                 document.getElementById('link_field').innerHTML = "Link data neobsažena";
             else
                 document.getElementById('link_field').innerHTML = result.content;
-            
+
 
         }
 
@@ -525,66 +632,33 @@
 
             getClasses();
             var lastdate;
-          //  console.log(dates);
-           // console.log(object_nodes);
-          //  console.log(relations);
-           // console.log(src_date);
-           // console.log(sources);
+            //  console.log(dates);
+            // console.log(object_nodes);
+            //  console.log(relations);
+            // console.log(src_date);
+            // console.log(sources);
             //  console.log(distanceClasses);
             console.log(nodes);
             console.log(col);
 
             var inix = 0;
             var ypos = 0;
-            
+
             var lastIdn = 1;
             var cnter = 0;
-           /* for(var i = 0 ; i < distanceClasses.length ; i++)
-            {
-               
-                if (distanceClasses[i].id == lastIdn )
-                {
-                    cnter++;
-                    if(cangle > 360 )
-                    {
-                        i = i - cnter;
-                        cnter = 0;
-                        distance = distance + 100;
-                        adder = adder - 2;
-                        nodes = nodes.slice(0,-cnter);
-                    }
-                    object_nodes[i].content.label = "ooof";
-                    object_nodes[i].content.x = circleX(distance,0,0,cangle);
-                    object_nodes[i].content.y = circleY(distance,0,0,cangle);
-                    nodes.push(object_nodes[i].content);
-                    cangle = cangle + adder;
 
-                }
-                else
-                {
-                    distance = distance + 100;
-                    cangle = 30;
-                    object_nodes[i].content.label = "ooof";
-                    object_nodes[i].content.x = circleX(distance,0,0,cangle);
-                    object_nodes[i].content.y = circleY(distance,0,0,cangle);
-                    nodes.push(object_nodes[i].content);
-                }
-
-
-                lastIdn = distanceClasses[i].id;
-            }*/
 
             for(var i = 0 ; i < distanceClasses.length ; i++)
             {
                 inix = inix + 300;
-                if (distanceClasses[i].id == lastIdn ) // stejny den 
+                if (distanceClasses[i].id == lastIdn ) // stejny den
                 {
-                    
+
                     object_nodes[i].content.label = dates[i].datum.toLocaleString();
                     object_nodes[i].content.x = inix;
                     object_nodes[i].content.y = ypos;
                     nodes.push(object_nodes[i].content);
-                   
+
 
                 }
                 else
@@ -600,7 +674,7 @@
                     ypos = ypos + 120;
                     inix = 0;
                 }
-                   
+
 
                 lastIdn = distanceClasses[i].id;
             }
@@ -654,13 +728,13 @@
 
 
         setTimeout(function(){
-           // ready();
+            // ready();
         }, 8000);
 
-     
+
 
         function ready(){
-        network.setOptions( { physics: true } );
+            network.setOptions( { physics: true } );
         }
 
         function invoke() {
@@ -679,11 +753,11 @@
                 edges: edges
             };
             var options = {
-               /* interaction: {
-                    navigationButtons: true,
-                    keyboard: true
-                },*/
-          
+                /* interaction: {
+                     navigationButtons: true,
+                     keyboard: true
+                 },*/
+
                 nodes: {
                     shape: 'dot',
                     size: 30,
@@ -695,29 +769,29 @@
                     margin: 10
                 },
                 physics: false,
-            //  "physics": {
-                  /*  "barnesHut": {
-                        "gravitationalConstant": -20000,
-                        "centralGravity": 4,
-                        "springLength": 40,
-                        "springConstant": 1,
-                        "damping": 0.7,
-                        "avoidOverlap": 0.79
-                    },
-                    "minVelocity": 0.75*/
-               /*   forceAtlas2Based: {
-                      gravitationalConstant: -26,
-                      centralGravity: 0.005,
-                      springLength: 230,
-                      springConstant: 0.18
+                //  "physics": {
+                /*  "barnesHut": {
+                      "gravitationalConstant": -20000,
+                      "centralGravity": 4,
+                      "springLength": 40,
+                      "springConstant": 1,
+                      "damping": 0.7,
+                      "avoidOverlap": 0.79
                   },
-                  maxVelocity: 146,
-                  solver: 'forceAtlas2Based',
-                  timestep: 0.35,
-                  stabilization: {iterations: 150},*/
-              //  },
+                  "minVelocity": 0.75*/
+                /*   forceAtlas2Based: {
+                       gravitationalConstant: -26,
+                       centralGravity: 0.005,
+                       springLength: 230,
+                       springConstant: 0.18
+                   },
+                   maxVelocity: 146,
+                   solver: 'forceAtlas2Based',
+                   timestep: 0.35,
+                   stabilization: {iterations: 150},*/
+                //  },
                 // layout:{randomSeed:2},
-               
+
                 edges: {
                     width: 2
 
@@ -736,7 +810,7 @@
                 console.log('click event, getNodeAt returns: ' + this.getNodeAt(params.pointer.DOM));
                 display_data(this.getNodeAt(params.pointer.DOM));
             });
-            
+
 
         }
 
