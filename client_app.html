@@ -26,20 +26,7 @@
 
 </head>
 <body>
-    <!-- Navigation
-    <nav class="navbar navbar-inverse">
-        <div class="container-fluid">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" href="#">Timeline Analyzer</a>
-            </div>
-        </div>
-    </nav>-->
+   
     <nav id=menu class='navbar navbar-default'>
         <div class=container-fluid>
             <div class=navbar-header>
@@ -67,13 +54,13 @@
                                 <option value="RESPEKT">
                                 <option value="iROZHLAS">
                                 <option value="DVTV">
-
+                                <option value="VESELOVSKY">
                             </datalist>
                         </div>
                     </th>
                     <th>
                         <div class="space">
-                            <input onclick="add()" class='form-control c_box' type="submit">
+                            <input onclick="add()" class='form-control c_box' value='Přidat zdroj' type="submit">
                         </div>
                     </th>
 
@@ -152,6 +139,7 @@
 
 
         TA.setDateSpan(new Date('2017-08-08'), new Date('2017-08-12'));
+       // var limits = TA.DateLimits();
         //mainset.addTimeline('http://nesfit.github.io/resource/ta#twitter-timeline-DVTVcz');
         //mainset.addTimeline('http://nesfit.github.io/resource/ta#twitter-timeline-iROZHLAScz');
         //mainset.addTimeline('http://nesfit.github.io/resource/ta#twitter-timeline-RESPEKT_CZ');
@@ -174,6 +162,8 @@
         var sources = [];
         var colors = ['rgb(256,168,7)','rgb(255,100,70)','rgb(200,168,159)','rgb(255,168,7)','rgb(255,168,7)']
         var network;
+        var edge_type = '';
+        var hide = false;
 
         sources.push('http://nesfit.github.io/resource/ta#twitter-timeline-DVTVcz');
         sources.push('http://nesfit.github.io/resource/ta#twitter-timeline-iROZHLAScz');
@@ -251,9 +241,9 @@
                 var test = source_parse(src,0);
                 if (test == 0)
                 {
-                    li_sources.push({id: id1, source: src, content: '<li id=' + id1 +'><a onclick=delet(' +id1+') href=#>'  + src +'</li>' });
+                    li_sources.push({id: id1, source: src, content: '<li id=' + id1 +'><a class=source_links onclick=delet(' +id1+') href=#>'  + src +'</li>' });
                     var k = document.getElementById('adder').innerHTML;
-                    document.getElementById('adder').innerHTML = k + '<li id=' + id1 +'><a onclick=delet(' +id1+') href=#>'  + src +'</li>';
+                    document.getElementById('adder').innerHTML = k + '<li id=' + id1 +'><a class=source_links onclick=delet(' +id1+') href=#>'  + src +'</li>';
                     id1++;
                 }
                 else
@@ -269,7 +259,7 @@
         function source_parse(src,swit)
         {
 
-            console.log(src);
+
             if(src == "DVTV")
             {
                 if(swit==0)
@@ -301,10 +291,24 @@
 
                 return 0;
             }
+            else if(src == "VESELOVSKY")
+            {
+                if(swit==0)
+                    source_structure.push('http://nesfit.github.io/resource/ta#twitter-timeline-veselovskyma');
+                else
+                {
+                    source_structure.splice(source_structure.indexOf('http://nesfit.github.io/resource/ta#twitter-timeline-veselovskyma'),1);
+                }
+
+                return 0;
+            }
             else
             {
                 return 1;
             }
+
+
+
         }
         function delet(idf)
         {
@@ -333,9 +337,6 @@
 
             }
 
-            console.log(source_structure);
-            console.log(li_sources);
-            console.log(str);
             document.getElementById('adder').innerHTML = str ;
 
         }
@@ -356,8 +357,7 @@
             }
             else
             {
-                console.log(result);
-                console.log(result[0].content.id);
+
                 if (datum == lastdate)
                 {
                     ar_index++;
@@ -447,9 +447,7 @@
             }
 
 
-            /*  for (i = 1; i < count; i++) {
-                  edges.push({ from: i, to: 0 });
-              }*/
+         
 
             var container = document.getElementById('canv');
             var data = {
@@ -459,7 +457,8 @@
             var options = {
                 interaction: {
                     navigationButtons: true,
-                    keyboard: true
+                    keyboard: true,
+                    hideEdgesOnDrag: hide
                 },
 
                 nodes: {
@@ -473,10 +472,34 @@
                     margin: 10
                 },
                 physics: false,
-             
+                //  "physics": {
+                /*  "barnesHut": {
+                      "gravitationalConstant": -20000,
+                      "centralGravity": 4,
+                      "springLength": 40,
+                      "springConstant": 1,
+                      "damping": 0.7,
+                      "avoidOverlap": 0.79
+                  },
+                  "minVelocity": 0.75*/
+                /*   forceAtlas2Based: {
+                       gravitationalConstant: -26,
+                       centralGravity: 0.005,
+                       springLength: 230,
+                       springConstant: 0.18
+                   },
+                   maxVelocity: 146,
+                   solver: 'forceAtlas2Based',
+                   timestep: 0.35,
+                   stabilization: {iterations: 150},*/
+                //  },
+                // layout:{randomSeed:2},
 
                 edges: {
-                 
+                    // width: 2
+                    smooth:{type:edge_type},
+
+
 
                 }
             };
@@ -489,7 +512,6 @@
 
             network.on("click", function (params) {
                 params.event = "[original event]";
-              
                 console.log('click event, getNodeAt returns: ' + this.getNodeAt(params.pointer.DOM));
                 display_data(this.getNodeAt(params.pointer.DOM));
             });

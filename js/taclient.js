@@ -1,5 +1,4 @@
 
-
 var TAClient = function(serverUrl, repositoryName) {
 	
 	//RDF namespaces used
@@ -27,6 +26,18 @@ TAClient.prototype.setDateSpan = function(dateStart, dateEnd) {
 	this.dateEnd = dateEnd;
 };
 
+TAClient.prototype.DateLimits = function () {
+
+    var q = "SELECT ?p ?o ?label ?dtime ?text ?src ?srclabel"
+		+ " WHERE {<" + uri + "> ?p ?o . ?p rdfs:subPropertyOf ta:contextLink ."
+		+ " ?p rdfs:label ?label ."
+		+ " ?o ta:timestamp ?dtime ."
+		+ " ?o ta:contains ?textc . ?textc rdf:type ta:TextContent . ?textc ta:text ?text ."
+		+ " ?o ta:sourceTimeline ?src . ?src rdfs:label ?srclabel}";
+
+    return this.client.getObjectsWhere('');
+};
+
 TAClient.prototype.getTimelines = function() {
 	return this.client.getObjectsWhere('?s rdf:type ta:Timeline');
 };
@@ -37,7 +48,7 @@ TAClient.prototype.getEntries = function (timelineUri, src) {
 	if (this.dateStart && this.dateEnd) {
 		filter = ' FILTER (?time >= "' + this.dateStart.toISOString() + '"^^xsd:dateTime && ?time <= "' + this.dateEnd.toISOString() + '"^^xsd:dateTime)';
 	}
-	//console.log("problem 2" + src);
+	
 	return this.client.getObjectArrayWhere('?s rdf:type ta:Entry . ?s ta:timestamp ?time . ?s ta:sourceTimeline <' + timelineUri + '>' + filter, 'ASC(?time)', src);
 };
 

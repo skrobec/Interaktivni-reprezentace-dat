@@ -1,6 +1,5 @@
 
 
-
 /**
  * Creates a new RDF client.
  */
@@ -48,13 +47,29 @@ RDFClient.prototype.sendQuery = function(query) {
 		    	Accept: 'application/sparql-results+json'
 		    },
 		    async: true,
-		    success: function(data) {
+		    success: function (data) {
+		        
 		    	resolve(data);
 		    },
 		    error: reject
 		});
 	});
 };
+
+RDFClient.prototype.getDateBounds = function (query) {
+    var client = this;
+    var q = this.getPrefixes() + " " + query;
+    return new Promise(function (resolve, reject) {
+        var p = client.sendQuery(q);
+        p.then(function (data) {
+            console.log(data);
+            resolve("ozvez");
+        }).catch(function (reason) {
+            reject(reason);
+        });
+    });
+};
+
 
 /**
  * Executes an arbitrary query and creates an array of objects with the corresponsing properies.
@@ -78,17 +93,21 @@ RDFClient.prototype.bindingsToArray = function(bindings) {
 		var item = bindings[i];
 		var newitem = {};
 		for (var prop in item) {
+		
 			if (item.hasOwnProperty(prop)) {
 				var value;
 				if (item[prop].type == 'uri')
 					value = { uri: item[prop].value };
 				else
-					value = item[prop].value;
+				    value = item[prop].value;
+
+		
 				newitem[prop] = value;
 			}
 		}
 		ret.push(newitem);
 	}
+
 	return ret;
 }
 
@@ -106,7 +125,8 @@ RDFClient.prototype.getObjectsWhere = function(where) {
 	//console.log('Q: ' + query);
 	return new Promise(function(resolve, reject) {
 		var p = client.sendQuery(query);
-		p.then(function(data) {
+	    p.then(function (data) {
+	       
 			resolve(client.parseResponseObjects(data));
 		}).catch(function(reason) {
 			reject(reason);
@@ -118,7 +138,7 @@ RDFClient.prototype.getObjectsWhere = function(where) {
  * Executes a query on the server. The resulting array may be ordered.
  * @return an ordered array of objects found.
  */
-RDFClient.prototype.getObjectArrayWhere = function(where, notused , src) { // zjistit co a jak
+RDFClient.prototype.getObjectArrayWhere = function(where, notused , src) { 
    var order = null;
 	var client = this;
 	var w = '?s ?p ?o';
@@ -128,10 +148,12 @@ RDFClient.prototype.getObjectArrayWhere = function(where, notused , src) { // zj
 	if (order)
 		query += ' ORDER BY ' + order;
     //console.log('Q: ' + query);
-	console.log("problem" + src);
+	
 	return new Promise(function(resolve, reject) {
-		var p = client.sendQuery(query);
-		p.then(function(data) {
+	    var p = client.sendQuery(query);
+	  
+	    p.then(function (data) {
+	   
 			resolve([client.parseResponseObjectsToArray(data),src]);
 		}).catch(function(reason) {
 			reject(reason);
@@ -158,12 +180,15 @@ RDFClient.prototype.getObject = function(iri) {
  * Parses the RDF4J server response and creates a set of objects with the given properties.
  */
 RDFClient.prototype.parseResponseObjects = function(data) {
-	var ret = {};
-	var bindings = data.results.bindings;
+    var ret = {};
+   
+    var bindings = data.results.bindings;
+  
 	for (var i = 0; i < bindings.length; i++) {
 		var item = bindings[i];
 		if (item.s.type == 'uri') { //process only URI subjects
-			var subject = item.s.value;
+		    var subject = item.s.value;
+	
 			var property = this.getPropertyName(item.p.value);
 			var value;
 			if (item.o.type == 'uri')
@@ -171,13 +196,16 @@ RDFClient.prototype.parseResponseObjects = function(data) {
 			else
 				value = item.o.value;
 			
-			//create a new object when it does not exist yet for the subject URI
+		    //create a new object when it does not exist yet for the subject URI
+		//	console.log("vyzkum 4 " + property + "  "   + value );
 			if (ret[subject] === undefined) {
 				ret[subject] = { URI: subject };
 			}
 			ret[subject][property] = value;
+		
 		}
 	}
+	
 	return ret;
 };
 
@@ -216,7 +244,9 @@ RDFClient.prototype.parseResponseObjectsToArray = function(data) {
 	}
 	//replace uris with the objects and return
 	for (var i = 0; i < uris.length; i++)
-		uris[i] = ret[uris[i]];
+	    uris[i] = ret[uris[i]];
+
+
 	return uris;
 };
 

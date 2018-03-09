@@ -1,11 +1,4 @@
 
-
-
-
-
-
-
-
 function source_processing(idx)
 {
     if (idx < sources.length)
@@ -22,29 +15,30 @@ var ct;
 var col = 0;
 var done =0;
 var help_array = [];
+var node_counter = 0;
         
-function promise_processing(n) {
-    //col++;
+function promise_processing(n) { //zpracování dat 
+  
            
     TA.client.getObject(source_structure[n]).then(function (timeline) {
         //init the title etc
         var title = timeline.rdfs_label;
-        //   help_array.push({id:TA.getEntries(source_structure[n]),source:source_structure[n]});
+     
                
                 
         return TA.getEntries(source_structure[n],li_sources[n].source);
     }).then(function (entries) {
 
         for (var i = 0; i < entries[0].length; i++) {
-            // console.log(entries[0].length);
+        
             var date = new Date(entries[0][i].timestamp);
             dat = date;
             dates.push({ id: dt++, datum: date });
             date_array.push(date);
             src_date.push(date);
                  
-            //  var src = help_array.find(src => src.id === entries);
-         
+  
+            // console.log(entries[1]);
             fin_p(entries[0][i],i,entries[0].length-1,entries[1],date);
         }
         //  console.log(dates);
@@ -63,10 +57,34 @@ function rec_title(str,letters)
         return rec_title(str,letters-10);
 }
 
+function clean_up()
+{
+    array_of_source_nodes.length =0; // pole poli s prvky rozdelenych dle zdroju
+   
+    done=0;
+    nodes.length =0;
+    edges.length =0;
+    promises_array.length =0;
+    push_promises.length =0;
+    dates.length =0; // struktura pro datum
+    date_array.length =0;
+    object_nodes.length =0;
+    distanceArray.length =0;
+    distanceClasses.length =0; // struktura pro tridy vzdalenosti dle id
+    relations.length =0;
+    src_date.length =0;
+    text_data.length =0;
+    photo_data.length =0;
+    URL_data.length =0;
+    link_data.length =0;
+}
+
 
 function fin_p(entry,current,total,my_source,my_date) {
           
+    node_counter++;
     Promise.all(TA.loadEntryContents(entry)).then(values => {
+     
      
         idk=idk+1;
            
@@ -84,14 +102,25 @@ function fin_p(entry,current,total,my_source,my_date) {
             ct++;
 
 
-            object_nodes.push({id: idk,source:my_source, date:my_date, content :{ id: idk , title: tit, label: xxxx, x: 0, y: 0, color:'white'}});
+            object_nodes.push({id: idk,source:my_source, date:my_date, content_type: 0 ,content :{ id: idk , title: tit, label: val.text, x: 0, y: 0, color:'white',shape: 'dot', image: undefined}});
                    
-            text_data.push({id: idk,content:xxxx});
+            text_data.push({id: idk,content:val.text});
 
         
 
-
         }else if (type == "Image") {
+           
+            var idx = object_nodes.findIndex((obj => obj.id == idk));//rozliseni typu obsahu pro vzhled
+
+            if(  object_nodes[idx].content_type == 1)
+            {
+                object_nodes[idx].content_type = 3;
+            }
+            else
+            {
+                object_nodes[idx].content_type = 2;
+            }
+           
 
             photo_data.push({id: idk,content:'<a href="' + val.sourceUrl + '"><img style="' + "width:200px; height:auto;" + '" src="' + val.sourceUrl + '" alt=""></a>'});
         } else if (type == "URLContent") {
@@ -106,24 +135,43 @@ function fin_p(entry,current,total,my_source,my_date) {
 });
 }
 
-function process_info() // seradit, priradit barvu a vztahy XD
+function performance_manage()
 {
+    if (node_counter > 300 && node_counter < 500 )
+    {
+        edge_type = 'continuous';
+    }
+    else if (node_counter > 500)
+    {
+        edge_type = 'continuous';
+        hide = true;
+    }
+    else
+    {
+        edge_type = 'dynamic';
+    }
+
+
+}
+
+function process_info() // seradit, priradit barvu a vztahy 
+{
+
+    performance_manage();
+    design();
     for (var i =0; i < li_sources.length; i++)
     {
 
         //   console.log(object_nodes);
         var result = object_nodes.filter(res => res.source === li_sources[i].source);
-              
-        //console.log(li_sources[i].source);
-        console.log("result");
-        console.log(result);
+ 
         result.sort(function(a, b) {
             a = new Date(a.date);
             b = new Date(b.date);
-            return a>b ? -1 : a<b ? 1 : 0;
+            return b>a ? -1 : b<a ? 1 : 0;
         });
-        console.log("result sorted");
-        console.log(result);
+      //  console.log("result sorted");
+     //   console.log(result);
                
         for (var j = 0; j < result.length; j++)
         { 
@@ -134,19 +182,46 @@ function process_info() // seradit, priradit barvu a vztahy XD
         array_of_source_nodes.push(result);
 
     } 
+ 
    
     positioning();
 
+}
+
+function design()
+{
+    for (var i = 2; i <= object_nodes.length+1; i++)
+    {
+        console.log(i);
+        console.log(object_nodes.length);
+        var idx = object_nodes.findIndex((obj => obj.id == i));
+        console.log(idx);
+        if(  object_nodes[idx].content_type == 1)
+        {
+            object_nodes[idx].content.shape = 'circularImage';
+            object_nodes[idx].content.image = 'style/relation.png';
+        }
+        else if(  object_nodes[idx].content_type == 2)
+        {
+            object_nodes[idx].content.shape = 'circularImage';
+            object_nodes[idx].content.image = 'style/photo.png';
+        }
+        else if(  object_nodes[idx].content_type == 3)
+        {
+            object_nodes[idx].content.shape = 'circularImage';
+            object_nodes[idx].content.image = 'style/photorelation.png';
+        }
+
+
+    }
+  
 }
 
 
 function links(URI,datesi,kk,current,total,value_count,total_values)
 {
 
-    console.log("curr " + current);
-    console.log("total " + total);
-    console.log("curr value " + value_count);
-    console.log(" value total " + total_values);
+  
     var finished = false;
     if(current==total && value_count == (total_values-1)) //reseni pro konec zpracovani 
     {
@@ -157,7 +232,16 @@ function links(URI,datesi,kk,current,total,value_count,total_values)
                
         if (links[0].length > 0) {
             //console.log('Links for ' + URI);
-
+            var idx = object_nodes.findIndex((obj => obj.id == kk));
+            if(  object_nodes[idx].content_type == 2)
+            {
+                object_nodes[idx].content_type = 3;
+            }
+            else
+            {
+                object_nodes[idx].content_type = 1;
+            }
+                         
 
             for (var i = 0; i < links[0].length; i++) {
                 var link = links[0][i];
@@ -173,7 +257,7 @@ function links(URI,datesi,kk,current,total,value_count,total_values)
         }
         if(links[1])
         {
-         
+          
             done++;
             if (done == li_sources.length)
             {
@@ -188,22 +272,13 @@ function links(URI,datesi,kk,current,total,value_count,total_values)
 
 function init()
 {
+    clean_up();
     for (var i = 0; i <= li_sources.length; i++) {
-        /* (function(index) {
-             setTimeout(function() {
-                 invoke();}, 2000);
-         })(i);*/
-        console.log(li_sources[i].source);
+      
         promise_processing(i);
-        console.log(i);
+      
     }
 }
-
-
-
-
-
-
 
 
 function circleX(distance, coreX , coreY , angle)
@@ -229,15 +304,15 @@ function process_relations() //zpracovani vztahu
             for(var j =0; j < relations.length; j++)
             {
                         
-          
+            
                 var dst_node =  object_nodes.find(dst_node => dst_node.id === relations[j].id );
-             
+            
                         
                 if (relations[i].destination_time == dst_node.date.toLocaleString())
                 {
-                
+            
                     edges.push({ from: relations[i].id , to: relations[j].id , color:{color:'white'} , width: 5});
-                    console.log(edges);
+                  
                     relations[j].solved = true;
                     relations[i].solved = true;
                 }
@@ -249,7 +324,7 @@ function process_relations() //zpracovani vztahu
 
 }
 var days;
-function getClasses() //  tridy dle data
+function getDays() //  tridy dle data
 {
     var lastmonth;
     var lastDay;
@@ -266,13 +341,11 @@ function getClasses() //  tridy dle data
     };
     date_array.sort(sort_date);
 
-  
-   
 
     var first = date_array[0].getUTCDate();
-    console.log(first);
+  
     var last = date_array[date_array.length-1].getUTCDate();
-    console.log(last);
+   
     days = (last - first)+1;
 
   
@@ -291,7 +364,7 @@ function positioning(){ // TODO - prazdne dny vyresit
     var distance = 200;
     var cangle = 30;
 
-    getClasses();
+    getDays();
     var lastdate;
  
 
@@ -331,9 +404,7 @@ function positioning(){ // TODO - prazdne dny vyresit
             for(var j = 0; j < array_of_source_nodes[i].length ; j++)
             {
                         
-                //console.log("times");
-                //  console.log(j);
-                    
+             
                 if (last_date != array_of_source_nodes[i][j].date.getUTCDate())
                 {
                         
@@ -348,7 +419,7 @@ function positioning(){ // TODO - prazdne dny vyresit
                  
                     for (var f = day_counter+1; f<day_space_struct.length ; f++ )
                     {
-                      
+                     
                         day_space_struct[f] = day_space_struct[f] + 1000;
                         //              console.log(day_space_struct);
                     }
@@ -371,10 +442,10 @@ function positioning(){ // TODO - prazdne dny vyresit
                     var day_time = hour + ":" + minute + ":" + seconds;
                     array_of_source_nodes[i][j].content.label = day_time;
                 }
-             
+                //        console.log("pranked4");
                 array_of_source_nodes[i][j].content.x = inix;
                 array_of_source_nodes[i][j].content.y = ypos;
-        
+                //  nodes.push(array_of_source_nodes[i][j].content);
                 last_date = array_of_source_nodes[i][j].date.getUTCDate();
             }
             ypos = ypos + 120;
