@@ -1,3 +1,10 @@
+/*
+ * taclient.js
+ * Timeline analyzer client JS library.
+ * 
+ * (c) Radek Burget 2017
+ * 
+ */
 
 var TAClient = function(serverUrl, repositoryName) {
 	
@@ -26,16 +33,14 @@ TAClient.prototype.setDateSpan = function(dateStart, dateEnd) {
 	this.dateEnd = dateEnd;
 };
 
-TAClient.prototype.DateLimits = function () {
+TAClient.prototype.DateLimits = function (ordering) {
 
-    var q = "SELECT ?p ?o ?label ?dtime ?text ?src ?srclabel"
-		+ " WHERE {<" + uri + "> ?p ?o . ?p rdfs:subPropertyOf ta:contextLink ."
-		+ " ?p rdfs:label ?label ."
-		+ " ?o ta:timestamp ?dtime ."
-		+ " ?o ta:contains ?textc . ?textc rdf:type ta:TextContent . ?textc ta:text ?text ."
-		+ " ?o ta:sourceTimeline ?src . ?src rdfs:label ?srclabel}";
-
-    return this.client.getObjectsWhere('');
+    var q = "SELECT ?o"
+		+ " WHERE {"
+		+ " ?s ta:timestamp ?o }"
+	    + "ORDER BY " + ordering + "(?o) LIMIT 1";
+   
+    return this.client.getDateBounds(q);
 };
 
 TAClient.prototype.getTimelines = function() {

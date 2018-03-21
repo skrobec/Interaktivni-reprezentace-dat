@@ -26,7 +26,7 @@
 
 </head>
 <body>
-   
+
     <nav id=menu class='navbar navbar-default'>
         <div class=container-fluid>
             <div class=navbar-header>
@@ -51,10 +51,7 @@
                         <div class="space">
                             <input class='form-control c_box' id="source" list="browsers" name="browser">
                             <datalist id="browsers">
-                                <option value="RESPEKT">
-                                <option value="iROZHLAS">
-                                <option value="DVTV">
-                                <option value="VESELOVSKY">
+                             
                             </datalist>
                         </div>
                     </th>
@@ -67,6 +64,48 @@
                     <th>
                         <div class="space">
                             <ul class="list-inline" id="adder"></ul>
+                        </div>
+                    </th>
+                </tr>
+            </table>
+
+        </div>
+    </div>
+
+    <div class=time_class>
+        <div class="src">
+            <h2>Zadání časového rozsahu</h2>
+            <table class="">
+                <tr>
+
+                    <th><div class="space"><p id="from"></p></div></th>
+                    <th><div class="space"><p id="to"></p></div></th>
+                </tr>
+                <tr>
+                    <th>
+                        <div class="space">
+                            <input class='form-control c_box' id="startsource" placeholder="Zadejte datum" list="start" name="browser">
+                            <datalist id="start"></datalist>
+
+                        </div>
+                    </th>
+                    <th>
+                        <div class="space">
+                            <input class='form-control c_box' id="endsource" placeholder="Zadejte datum" list="end" name="browser">
+                            <datalist id="end"></datalist>
+
+                        </div>
+                    </th>
+                    <th>
+
+                        <div class="space">
+                            <input onclick="timeadd()" class='form-control c_box' value='Vytvořit rozmezí' type="submit">
+                        </div>
+                    </th>
+
+                    <th>
+                        <div class="space">
+                            <ul class="list-inline" id="timeadder"></ul>
                         </div>
                     </th>
                 </tr>
@@ -138,24 +177,134 @@
 
 
 
-        TA.setDateSpan(new Date('2017-08-08'), new Date('2017-08-12'));
-       // var limits = TA.DateLimits();
-        //mainset.addTimeline('http://nesfit.github.io/resource/ta#twitter-timeline-DVTVcz');
-        //mainset.addTimeline('http://nesfit.github.io/resource/ta#twitter-timeline-iROZHLAScz');
-        //mainset.addTimeline('http://nesfit.github.io/resource/ta#twitter-timeline-RESPEKT_CZ');
-        //mainset.addTimeline('http://nesfit.github.io/resource/ta#twitter-timeline-veselovskyma');
+      
+        var limit_low;
+        var limit_high;
+        var times;
+        var database_sources = [];
+        var startTime;
+        var endTime;
+        var startDate;
+        var endDate;
 
-        //mainset.addTimeline('http://nesfit.github.io/resource/ta#local-timeline-kgvf5nvq');
 
-        //mainset.recomputeOffsets();
+        TA.DateLimits('ASC').then(function (timelow) {
+            limit_low=timelow;
+            var pos = timelow.search("T");
+            startTime = timelow.substr(0,pos);
+            // $("#from").attr("placeholder", timelow.substr(0,pos));
+            document.getElementById('from').innerHTML= "Od " + timelow.substr(0,pos);
+            document.getElementById('start').innerHTML += '<option value=' + timelow.substr(0,pos)+ '>' ;
+            return TA.DateLimits('DESC');
+        }).then(function (timehigh) {
+            limit_high=timehigh;
+            var pos = timehigh.search("T");
+            endTime = timehigh.substr(0,pos);
+            //  $("#to").attr("placeholder", timehigh.substr(0,pos));
+            document.getElementById('to').innerHTML= "Do " + timehigh.substr(0,pos);
+            document.getElementById('end').innerHTML += '<option value=' + timehigh.substr(0,pos)+ '>' ;
+            return TA.getTimelines();
+        }).then(function (timelines) {
+            times = timelines;
+            console.log(timelines);
+            for (var key in timelines) {
+                if (timelines.hasOwnProperty(key)) {
+                    console.log(key + " -> " + timelines[key].sourceId);
+                    document.getElementById('browsers').innerHTML += '<option value=' + timelines[key].sourceId + '>' ;
+                    database_sources.push({src: timelines[key].sourceId, URI: timelines[key].URI});
+                }
+            }
+
+            console.log(limit_low + " rozmezi " + limit_high + " timelines ");
+        });
+
+        function timeadd()
+        {
+            var start = document.getElementById("startsource").value;
+            var end = document.getElementById("endsource").value;
+            if ( start == '' || end == '')
+            {
+                alert("Prosím zadejte hodnotu");
+                return 0;
+            }
+            else if (start.length > 10 || end.length > 10)
+            {
+                alert("Prosím zadejte spravnou hodnotu");
+                return 0;
+            }
+            else
+            {
+                for(var i = 0; i < start.length; i++)
+                {
+
+                    if (i == 4 || i == 7)
+                    {
+                        if(start[i] != '-'){ alert("Prosím zadejte spravny format");
+                            return 0;
+                        }
+                    }
+                    else  if(isNaN(start[i]))
+                    {
+                        alert("Prosím zadejte spravny format");
+                        return 0;
+                    }
+                }
+                for(var i = 0; i < end.length; i++)
+                {
+
+                    if (i == 4 || i == 7)
+                    {
+                        if(end[i] != '-'){ alert("Prosím zadejte spravny format");
+                            return 0;
+                        }
+                    }
+                    else  if(isNaN(end[i]))
+                    {
+                        alert("Prosím zadejte spravny format");
+                        return 0;
+                    }
+                }
+                startDate = new Date(start);
+                endDate = new Date(end);
+              
+                TA.setDateSpan(startDate, endDate);
+
+                var compareStart = new Date(startTime);
+                var compareEnd = new Date(endTime);
+                console.log(startDate.getTime() + " test " + compareStart.getTime() );
+                if(startDate.getTime() < compareStart.getTime() || endDate.getTime() > compareEnd.getTime())
+                {
+                    alert("Prosím zadejte spravnou hodnotu");
+                    return 0;
+                }
+
+            }
+
+            document.getElementById("startsource").value = '';
+            document.getElementById("endsource").value = '';
+
+
+            startTime = start;
+            endTime = end;
+            document.getElementById('timeadder').innerHTML = '<li id=' + 1 +'><a class=source_links onclick=deletTime(' +1+') href=#>'  + start +'</li>';
+            document.getElementById('timeadder').innerHTML += '<li id=' + 2 +'><a class=source_links onclick=deletTime(' +2+') href=#>'  + end +'</li>';
+
+
+
+
+        }
+
+        function deletTime(id)
+        {
+
+            document.getElementById('timeadder').innerHTML = '';
+
+        }
 
         var color = 'gray';
         var len = undefined;
 
-
-
-
-        //var nodes =  new vis.DataSet();
+   
         var nodes =  [];
         var edges =  [];
         var count = 0;
@@ -259,55 +408,22 @@
         function source_parse(src,swit)
         {
 
-
-            if(src == "DVTV")
+            for (var i = 0; i < database_sources.length; i++)
             {
-                if(swit==0)
-                    source_structure.push('http://nesfit.github.io/resource/ta#twitter-timeline-DVTVcz');
-                else
+                if(database_sources[i].src == src)
                 {
-                    source_structure.splice(source_structure.indexOf('http://nesfit.github.io/resource/ta#twitter-timeline-DVTVcz'),1);
+                    if(swit==0)
+                        source_structure.push(database_sources[i].URI);
+                    else
+                    {
+                        source_structure.splice(source_structure.indexOf(database_sources[i].URI),1);
+                    }
+                    return 0;
                 }
-                return 0;
             }
-            else if(src == "iROZHLAS")
-            {
-                if(swit==0)
-                    source_structure.push('http://nesfit.github.io/resource/ta#twitter-timeline-iROZHLAScz');
-                else
-                {
-                    source_structure.splice(source_structure.indexOf('http://nesfit.github.io/resource/ta#twitter-timeline-iROZHLAScz'),1);
-                }
-                return 0;
-            }
-            else if(src == "RESPEKT")
-            {
-                if(swit==0)
-                    source_structure.push('http://nesfit.github.io/resource/ta#twitter-timeline-RESPEKT_CZ');
-                else
-                {
-                    source_structure.splice(source_structure.indexOf('http://nesfit.github.io/resource/ta#twitter-timeline-RESPEKT_CZ'),1);
-                }
+            return 1;
 
-                return 0;
-            }
-            else if(src == "VESELOVSKY")
-            {
-                if(swit==0)
-                    source_structure.push('http://nesfit.github.io/resource/ta#twitter-timeline-veselovskyma');
-                else
-                {
-                    source_structure.splice(source_structure.indexOf('http://nesfit.github.io/resource/ta#twitter-timeline-veselovskyma'),1);
-                }
-
-                return 0;
-            }
-            else
-            {
-                return 1;
-            }
-
-
+        
 
         }
         function delet(idf)
@@ -344,14 +460,16 @@
         var lastdate;
         var ar_index=0;
         function foc() {
-            // updateValues();
+           
             var datum = document.getElementById("para").value;
             console.log(datum);
 
 
-            // var result = distanceClasses.find(result => result.time === datum);
-            var result = distanceClasses.filter(result => result.time === datum);
-            if(result === undefined)
+     
+            var result = cam_node_dates.filter(result => result.date === datum);
+            console.log(result);
+
+            if(result === undefined || result.length == 0)
             {
                 alert("datum nenalezeno");
             }
@@ -366,7 +484,7 @@
                 }
                 lastdate=datum;
 
-                var nodeId = result[ar_index].content.id;
+                var nodeId = result[ar_index].id;
                 var options = {
                     // position: {x:positionx,y:positiony}, // this is not relevant when focusing on nodes
                     scale: 1.0,
@@ -393,40 +511,68 @@
         {
 
             var result = text_data.find(result => result.id === id);
-            document.getElementById('text_field').innerHTML = result.content;
-
-
-
-            result = photo_data.find(result => result.id === id);
             if(result === undefined)
-                document.getElementById('photo_field').innerHTML = "Fotografie neobsažena";
+                document.getElementById('text_field').innerHTML = "Textová data neobsažena";
             else
-                document.getElementById('photo_field').innerHTML = result.content;
+                document.getElementById('text_field').innerHTML = result.content;
 
-            result = URL_data.find(result => result.id === id);
-            if(result === undefined)
-                document.getElementById('url_field').innerHTML = "URL adresa neobsažena";
+            result = photo_data.filter(res => res.id === id);
+            if(result.length > 1)
+            {
+                document.getElementById('photo_field').innerHTML = '';
+                for (var i =0; i < result.length; i++)
+                {
+                    document.getElementById('photo_field').innerHTML +=   result[i].content + '<br/>'  ;
+                }
+            }
             else
-                document.getElementById('url_field').innerHTML = result.content;
+            {
+                result = photo_data.find(result => result.id === id);
+                if(result === undefined)
+                    document.getElementById('photo_field').innerHTML = "Fotografie neobsažena";
+                else
+                    document.getElementById('photo_field').innerHTML = result.content;
+            }
 
-            result = link_data.find(result => result.id === id);
-            if(result === undefined)
-                document.getElementById('link_field').innerHTML = "Link data neobsažena";
+            result = URL_data.filter(res => res.id === id);
+            if(result.length > 1)
+            {
+                document.getElementById('url_field').innerHTML ='';
+                for (var i =0; i < result.length; i++)
+                {
+                    document.getElementById('url_field').innerHTML += result[i].content + '<br/>'  ;
+                }
+            }
             else
-                document.getElementById('link_field').innerHTML = result.content;
+            {
+                result = URL_data.find(result => result.id === id);
+                if(result === undefined)
+                    document.getElementById('url_field').innerHTML = "URL adresa neobsažena";
+                else
+                    document.getElementById('url_field').innerHTML = result.content;
+            }
+
+
+            result = link_data.filter(res => res.id === id);
+            if(result.length > 1)
+            {
+                document.getElementById('link_field').innerHTML ='';
+                for (var i =0; i < result.length; i++)
+                {
+                    document.getElementById('link_field').innerHTML +=  result[i].content + '<br/>' ;
+                }
+            }
+            else
+            {
+                result = link_data.find(result => result.id === id);
+                if(result === undefined)
+                    document.getElementById('link_field').innerHTML = "Link data neobsažena";
+                else
+                    document.getElementById('link_field').innerHTML = result.content;
+            }
 
 
         }
-
-
-
-
-
-        setTimeout(function(){
-            // ready();
-        }, 8000);
-
-
 
         function ready(){
             network.setOptions( { physics: true } );
@@ -443,11 +589,13 @@
 
             for (var i =0; i < li_sources.length; i++)
             {
-                nodes.push({id: 1000+i, x: 0, y: 0 + (step*i), label: li_sources[i].source, color: colors[i], fixed: true, physics:false});
+                nodes.push({id: 10000+i, x: 0, y: 0 + (step*i), label: li_sources[i].source, color: colors[i], fixed: true, physics:false});
             }
 
 
-         
+            /*  for (i = 1; i < count; i++) {
+                  edges.push({ from: i, to: 0 });
+              }*/
 
             var container = document.getElementById('canv');
             var data = {

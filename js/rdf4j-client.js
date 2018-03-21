@@ -1,3 +1,10 @@
+/**
+ * rdf4j-client.js
+ * A client libraty for the RDF4J server.
+ * 
+ * (c) 2017 Radek Burget <burgetr@fit.vutbr.cz>
+ * 
+ */
 
 
 /**
@@ -62,8 +69,11 @@ RDFClient.prototype.getDateBounds = function (query) {
     return new Promise(function (resolve, reject) {
         var p = client.sendQuery(q);
         p.then(function (data) {
-            console.log(data);
-            resolve("ozvez");
+  
+            var bindings = data.results.bindings;
+            var date = bindings[0].o.value;
+            console.log(date);
+            resolve(date);
         }).catch(function (reason) {
             reject(reason);
         });
@@ -88,12 +98,13 @@ RDFClient.prototype.queryObjects = function(query,finished) {
 };
 
 RDFClient.prototype.bindingsToArray = function(bindings) {
-	var ret = [];
+    var ret = [];
+ 
 	for (var i = 0; i < bindings.length; i++) {
-		var item = bindings[i];
+	    var item = bindings[i];
 		var newitem = {};
 		for (var prop in item) {
-		
+	
 			if (item.hasOwnProperty(prop)) {
 				var value;
 				if (item[prop].type == 'uri')
@@ -101,7 +112,7 @@ RDFClient.prototype.bindingsToArray = function(bindings) {
 				else
 				    value = item[prop].value;
 
-		
+
 				newitem[prop] = value;
 			}
 		}
@@ -151,9 +162,9 @@ RDFClient.prototype.getObjectArrayWhere = function(where, notused , src) {
 	
 	return new Promise(function(resolve, reject) {
 	    var p = client.sendQuery(query);
-	  
+
 	    p.then(function (data) {
-	   
+
 			resolve([client.parseResponseObjectsToArray(data),src]);
 		}).catch(function(reason) {
 			reject(reason);
@@ -188,7 +199,7 @@ RDFClient.prototype.parseResponseObjects = function(data) {
 		var item = bindings[i];
 		if (item.s.type == 'uri') { //process only URI subjects
 		    var subject = item.s.value;
-	
+
 			var property = this.getPropertyName(item.p.value);
 			var value;
 			if (item.o.type == 'uri')
@@ -197,15 +208,15 @@ RDFClient.prototype.parseResponseObjects = function(data) {
 				value = item.o.value;
 			
 		    //create a new object when it does not exist yet for the subject URI
-		//	console.log("vyzkum 4 " + property + "  "   + value );
+
 			if (ret[subject] === undefined) {
 				ret[subject] = { URI: subject };
 			}
 			ret[subject][property] = value;
-		
+
 		}
 	}
-	
+
 	return ret;
 };
 
@@ -246,7 +257,7 @@ RDFClient.prototype.parseResponseObjectsToArray = function(data) {
 	for (var i = 0; i < uris.length; i++)
 	    uris[i] = ret[uris[i]];
 
-
+	
 	return uris;
 };
 

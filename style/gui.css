@@ -40,6 +40,14 @@ a.source_links:hover{
    padding-bottom:50px;
 }
 
+.time_class{
+   
+  padding-top:1px;
+   background-color: #E8E8E8;
+   height:150px;
+   padding-bottom:50px;
+}
+
 
 div.vis-network div.vis-navigation div.vis-button.vis-right {
 

@@ -1,4 +1,11 @@
 
+
+
+
+
+
+
+
 function source_processing(idx)
 {
     if (idx < sources.length)
@@ -16,32 +23,32 @@ var col = 0;
 var done =0;
 var help_array = [];
 var node_counter = 0;
+var cam_node_dates = [];
         
-function promise_processing(n) { //zpracovÃ¡nÃ­ dat 
-  
+function promise_processing(n) { //zpracování dat 
+    //col++;
            
     TA.client.getObject(source_structure[n]).then(function (timeline) {
         //init the title etc
         var title = timeline.rdfs_label;
-     
+        //   help_array.push({id:TA.getEntries(source_structure[n]),source:source_structure[n]});
                
                 
         return TA.getEntries(source_structure[n],li_sources[n].source);
     }).then(function (entries) {
 
         for (var i = 0; i < entries[0].length; i++) {
-        
+           
             var date = new Date(entries[0][i].timestamp);
             dat = date;
             dates.push({ id: dt++, datum: date });
             date_array.push(date);
             src_date.push(date);
                  
-  
-            // console.log(entries[1]);
+          
             fin_p(entries[0][i],i,entries[0].length-1,entries[1],date);
         }
-        //  console.log(dates);
+     
 
     });
 }
@@ -61,6 +68,7 @@ function clean_up()
 {
     array_of_source_nodes.length =0; // pole poli s prvky rozdelenych dle zdroju
    
+    idk = 1;
     done=0;
     nodes.length =0;
     edges.length =0;
@@ -85,7 +93,7 @@ function fin_p(entry,current,total,my_source,my_date) {
     node_counter++;
     Promise.all(TA.loadEntryContents(entry)).then(values => {
      
-     
+          
         idk=idk+1;
            
     for (var j = 0; j < values.length; j++) {
@@ -95,9 +103,7 @@ function fin_p(entry,current,total,my_source,my_date) {
         if (type == "TextContent") {
             var tit;
             xxxx = val.text;
-            /* for (var i = 0; i < (xxxx.length/20); i++) {
-                 xxxx=  xxxx.slice(0, 20+(i*20)) + '\n' + xxxx.slice(20+(i*20));
-             }*/
+        
             tit = rec_title(xxxx,100);
             ct++;
 
@@ -105,8 +111,10 @@ function fin_p(entry,current,total,my_source,my_date) {
             object_nodes.push({id: idk,source:my_source, date:my_date, content_type: 0 ,content :{ id: idk , title: tit, label: val.text, x: 0, y: 0, color:'white',shape: 'dot', image: undefined}});
                    
             text_data.push({id: idk,content:val.text});
-
+      
         
+
+
 
         }else if (type == "Image") {
            
@@ -121,9 +129,15 @@ function fin_p(entry,current,total,my_source,my_date) {
                 object_nodes[idx].content_type = 2;
             }
            
+         /*   idx = photo_data.findIndex((obj => obj.id == idk));
+            if (idx != undefined)
+                photo_data[idx].content += '<a href="' + val.sourceUrl + '"><img style="' + "width:200px; height:auto;" + '" src="' + val.sourceUrl + '" alt=""></a>';
+            else*/
+                photo_data.push({id: idk,content:'<a href="' + val.sourceUrl + '"><img style="' + "width:200px; height:auto;" + '" src="' + val.sourceUrl + '" alt=""></a>'});
 
-            photo_data.push({id: idk,content:'<a href="' + val.sourceUrl + '"><img style="' + "width:200px; height:auto;" + '" src="' + val.sourceUrl + '" alt=""></a>'});
         } else if (type == "URLContent") {
+
+           
 
             URL_data.push({id: idk,content:'URL: <a href="' + val.sourceUrl + '">' + val.text + '</a>'});
         } else {
@@ -131,7 +145,16 @@ function fin_p(entry,current,total,my_source,my_date) {
         }
 
     }
-   
+    /*   if(current==total)
+       {
+         
+           done++;
+           if (done == li_sources.length)
+           {
+              
+               process_info();
+           }
+       }*/
 });
 }
 
@@ -140,6 +163,8 @@ function performance_manage()
     if (node_counter > 300 && node_counter < 500 )
     {
         edge_type = 'continuous';
+    
+        hide = true;
     }
     else if (node_counter > 500)
     {
@@ -162,19 +187,18 @@ function process_info() // seradit, priradit barvu a vztahy
     for (var i =0; i < li_sources.length; i++)
     {
 
-        //   console.log(object_nodes);
+       
         var result = object_nodes.filter(res => res.source === li_sources[i].source);
- 
+        
         result.sort(function(a, b) {
             a = new Date(a.date);
             b = new Date(b.date);
             return b>a ? -1 : b<a ? 1 : 0;
         });
-      //  console.log("result sorted");
-     //   console.log(result);
-               
+ 
         for (var j = 0; j < result.length; j++)
         { 
+           
             result[j].content.color = colors[i];
             if(j != result.length-1)
                 edges.push({from: result[j].id, to: result[j+1].id  });
@@ -190,12 +214,12 @@ function process_info() // seradit, priradit barvu a vztahy
 
 function design()
 {
+  
     for (var i = 2; i <= object_nodes.length+1; i++)
     {
-        console.log(i);
-        console.log(object_nodes.length);
+      
         var idx = object_nodes.findIndex((obj => obj.id == i));
-        console.log(idx);
+     
         if(  object_nodes[idx].content_type == 1)
         {
             object_nodes[idx].content.shape = 'circularImage';
@@ -220,8 +244,6 @@ function design()
 
 function links(URI,datesi,kk,current,total,value_count,total_values)
 {
-
-  
     var finished = false;
     if(current==total && value_count == (total_values-1)) //reseni pro konec zpracovani 
     {
@@ -231,7 +253,7 @@ function links(URI,datesi,kk,current,total,value_count,total_values)
             
                
         if (links[0].length > 0) {
-            //console.log('Links for ' + URI);
+        
             var idx = object_nodes.findIndex((obj => obj.id == kk));
             if(  object_nodes[idx].content_type == 2)
             {
@@ -274,11 +296,18 @@ function init()
 {
     clean_up();
     for (var i = 0; i <= li_sources.length; i++) {
-      
+       
+
         promise_processing(i);
       
     }
 }
+
+
+
+
+
+
 
 
 function circleX(distance, coreX , coreY , angle)
@@ -304,13 +333,13 @@ function process_relations() //zpracovani vztahu
             for(var j =0; j < relations.length; j++)
             {
                         
-            
+             
                 var dst_node =  object_nodes.find(dst_node => dst_node.id === relations[j].id );
-            
+              
                         
                 if (relations[i].destination_time == dst_node.date.toLocaleString())
                 {
-            
+                
                     edges.push({ from: relations[i].id , to: relations[j].id , color:{color:'white'} , width: 5});
                   
                     relations[j].solved = true;
@@ -323,7 +352,7 @@ function process_relations() //zpracovani vztahu
 
 
 }
-var days;
+var days =1;
 function getDays() //  tridy dle data
 {
     var lastmonth;
@@ -340,13 +369,23 @@ function getDays() //  tridy dle data
         return 0;
     };
     date_array.sort(sort_date);
+    last = date_array[0].getUTCDay();
+    for (var i =0; i < date_array.length ; i++)
+    {
+        if (last != date_array[i].getUTCDay() )
+        {
+            last = date_array[i].getUTCDay();
+            days++;
+        }
+            
+        
+    }
 
-
-    var first = date_array[0].getUTCDate();
+  //  var first = date_array[0].getUTCDate();
   
-    var last = date_array[date_array.length-1].getUTCDate();
+  //  var last = date_array[date_array.length-1].getUTCDate();
    
-    days = (last - first)+1;
+  //  days = (last - first)+1;
 
   
 }
@@ -365,8 +404,10 @@ function positioning(){ // TODO - prazdne dny vyresit
     var cangle = 30;
 
     getDays();
-    var lastdate;
+
  
+    var lastdate;
+   
 
     var inix = 0;
     var ypos = 0;
@@ -380,7 +421,7 @@ function positioning(){ // TODO - prazdne dny vyresit
     var day_space_struct = [];
     var changed =false;
     var first_day = true; 
-
+   // days = 30;
       
            
     for(var i = 0; i < days ; i++)
@@ -404,7 +445,8 @@ function positioning(){ // TODO - prazdne dny vyresit
             for(var j = 0; j < array_of_source_nodes[i].length ; j++)
             {
                         
-             
+            
+                    
                 if (last_date != array_of_source_nodes[i][j].date.getUTCDate())
                 {
                         
@@ -419,7 +461,7 @@ function positioning(){ // TODO - prazdne dny vyresit
                  
                     for (var f = day_counter+1; f<day_space_struct.length ; f++ )
                     {
-                     
+        
                         day_space_struct[f] = day_space_struct[f] + 1000;
                         //              console.log(day_space_struct);
                     }
@@ -442,7 +484,7 @@ function positioning(){ // TODO - prazdne dny vyresit
                     var day_time = hour + ":" + minute + ":" + seconds;
                     array_of_source_nodes[i][j].content.label = day_time;
                 }
-                //        console.log("pranked4");
+          
                 array_of_source_nodes[i][j].content.x = inix;
                 array_of_source_nodes[i][j].content.y = ypos;
                 //  nodes.push(array_of_source_nodes[i][j].content);
@@ -459,8 +501,13 @@ function positioning(){ // TODO - prazdne dny vyresit
     {
         for(var j = 0; j < array_of_source_nodes[i].length ; j++)
         {
-                   
+          //  console.log(array_of_source_nodes[i][j].content.x + " investigation " + array_of_source_nodes[i][j].content.y);       
             nodes.push(array_of_source_nodes[i][j].content);
+            var month = array_of_source_nodes[i][j].date.getUTCMonth() + 1; //months from 1-12
+            var day = array_of_source_nodes[i][j].date .getUTCDate();
+            var year = array_of_source_nodes[i][j].date.getUTCFullYear();
+            cam_node_dates.push({id: array_of_source_nodes[i][j].id,date: day + "." + month + "." + year  });
+
         }
     }
    
