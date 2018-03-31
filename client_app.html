@@ -51,7 +51,11 @@
                         <div class="space">
                             <input class='form-control c_box' id="source" list="browsers" name="browser">
                             <datalist id="browsers">
-                             
+                                <!-- <option value="RESPEKT">
+                                 <option value="iROZHLAS">
+                                 <option value="DVTV">
+                                 <option value="VESELOVSKY">
+                                     -->
                             </datalist>
                         </div>
                     </th>
@@ -175,9 +179,6 @@
 
     <script type="text/javascript">
 
-
-
-      
         var limit_low;
         var limit_high;
         var times;
@@ -266,7 +267,9 @@
                 }
                 startDate = new Date(start);
                 endDate = new Date(end);
-              
+                console.log(start + " what " + end );
+                // TA.setDateSpan(new Date('2017-08-08'), new Date('2017-08-12'));
+                // TA.setDateSpan(new Date('2017-08-08'), new Date('2017-08-12'));
                 TA.setDateSpan(startDate, endDate);
 
                 var compareStart = new Date(startTime);
@@ -304,7 +307,7 @@
         var color = 'gray';
         var len = undefined;
 
-   
+        //var nodes =  new vis.DataSet();
         var nodes =  [];
         var edges =  [];
         var count = 0;
@@ -337,7 +340,7 @@
         var photo_data = [];
         var URL_data = [];
         var link_data = [];
-        // source_processing(0);
+
 
         var link_struct = []; // data odkazu
 
@@ -423,7 +426,7 @@
             }
             return 1;
 
-        
+
 
         }
         function delet(idf)
@@ -460,12 +463,12 @@
         var lastdate;
         var ar_index=0;
         function foc() {
-           
+            // updateValues();
             var datum = document.getElementById("para").value;
             console.log(datum);
 
 
-     
+            // var result = distanceClasses.find(result => result.time === datum);
             var result = cam_node_dates.filter(result => result.date === datum);
             console.log(result);
 
@@ -574,6 +577,11 @@
 
         }
 
+
+
+
+
+
         function ready(){
             network.setOptions( { physics: true } );
         }
@@ -591,11 +599,6 @@
             {
                 nodes.push({id: 10000+i, x: 0, y: 0 + (step*i), label: li_sources[i].source, color: colors[i], fixed: true, physics:false});
             }
-
-
-            /*  for (i = 1; i < count; i++) {
-                  edges.push({ from: i, to: 0 });
-              }*/
 
             var container = document.getElementById('canv');
             var data = {
@@ -620,28 +623,6 @@
                     margin: 10
                 },
                 physics: false,
-                //  "physics": {
-                /*  "barnesHut": {
-                      "gravitationalConstant": -20000,
-                      "centralGravity": 4,
-                      "springLength": 40,
-                      "springConstant": 1,
-                      "damping": 0.7,
-                      "avoidOverlap": 0.79
-                  },
-                  "minVelocity": 0.75*/
-                /*   forceAtlas2Based: {
-                       gravitationalConstant: -26,
-                       centralGravity: 0.005,
-                       springLength: 230,
-                       springConstant: 0.18
-                   },
-                   maxVelocity: 146,
-                   solver: 'forceAtlas2Based',
-                   timestep: 0.35,
-                   stabilization: {iterations: 150},*/
-                //  },
-                // layout:{randomSeed:2},
 
                 edges: {
                     // width: 2

@@ -1,11 +1,5 @@
 
 
-
-
-
-
-
-
 function source_processing(idx)
 {
     if (idx < sources.length)
@@ -30,25 +24,22 @@ function promise_processing(n) { //zpracování dat
            
     TA.client.getObject(source_structure[n]).then(function (timeline) {
         //init the title etc
-        var title = timeline.rdfs_label;
-        //   help_array.push({id:TA.getEntries(source_structure[n]),source:source_structure[n]});
-               
-                
+        var title = timeline.rdfs_label;             
         return TA.getEntries(source_structure[n],li_sources[n].source);
     }).then(function (entries) {
 
         for (var i = 0; i < entries[0].length; i++) {
-           
             var date = new Date(entries[0][i].timestamp);
             dat = date;
             dates.push({ id: dt++, datum: date });
             date_array.push(date);
             src_date.push(date);
                  
-          
+            //  var src = help_array.find(src => src.id === entries);
+            // console.log(entries[1]);
             fin_p(entries[0][i],i,entries[0].length-1,entries[1],date);
         }
-     
+        //  console.log(dates);
 
     });
 }
@@ -93,7 +84,7 @@ function fin_p(entry,current,total,my_source,my_date) {
     node_counter++;
     Promise.all(TA.loadEntryContents(entry)).then(values => {
      
-          
+        //  console.log(total);
         idk=idk+1;
            
     for (var j = 0; j < values.length; j++) {
@@ -103,7 +94,9 @@ function fin_p(entry,current,total,my_source,my_date) {
         if (type == "TextContent") {
             var tit;
             xxxx = val.text;
-        
+            /* for (var i = 0; i < (xxxx.length/20); i++) {
+                 xxxx=  xxxx.slice(0, 20+(i*20)) + '\n' + xxxx.slice(20+(i*20));
+             }*/
             tit = rec_title(xxxx,100);
             ct++;
 
@@ -111,11 +104,8 @@ function fin_p(entry,current,total,my_source,my_date) {
             object_nodes.push({id: idk,source:my_source, date:my_date, content_type: 0 ,content :{ id: idk , title: tit, label: val.text, x: 0, y: 0, color:'white',shape: 'dot', image: undefined}});
                    
             text_data.push({id: idk,content:val.text});
-      
+
         
-
-
-
         }else if (type == "Image") {
            
             var idx = object_nodes.findIndex((obj => obj.id == idk));//rozliseni typu obsahu pro vzhled
@@ -129,11 +119,11 @@ function fin_p(entry,current,total,my_source,my_date) {
                 object_nodes[idx].content_type = 2;
             }
            
-         /*   idx = photo_data.findIndex((obj => obj.id == idk));
-            if (idx != undefined)
-                photo_data[idx].content += '<a href="' + val.sourceUrl + '"><img style="' + "width:200px; height:auto;" + '" src="' + val.sourceUrl + '" alt=""></a>';
-            else*/
-                photo_data.push({id: idk,content:'<a href="' + val.sourceUrl + '"><img style="' + "width:200px; height:auto;" + '" src="' + val.sourceUrl + '" alt=""></a>'});
+            /*   idx = photo_data.findIndex((obj => obj.id == idk));
+               if (idx != undefined)
+                   photo_data[idx].content += '<a href="' + val.sourceUrl + '"><img style="' + "width:200px; height:auto;" + '" src="' + val.sourceUrl + '" alt=""></a>';
+               else*/
+            photo_data.push({id: idk,content:'<a href="' + val.sourceUrl + '"><img style="' + "width:200px; height:auto;" + '" src="' + val.sourceUrl + '" alt=""></a>'});
 
         } else if (type == "URLContent") {
 
@@ -145,28 +135,19 @@ function fin_p(entry,current,total,my_source,my_date) {
         }
 
     }
-    /*   if(current==total)
-       {
-         
-           done++;
-           if (done == li_sources.length)
-           {
-              
-               process_info();
-           }
-       }*/
+
 });
 }
 
 function performance_manage()
 {
-    if (node_counter > 300 && node_counter < 500 )
+    if (node_counter > 200 && node_counter < 300)
     {
         edge_type = 'continuous';
-    
-        hide = true;
+        console.log("slow ");
+       // hide = true;
     }
-    else if (node_counter > 500)
+    else if (node_counter > 300)
     {
         edge_type = 'continuous';
         hide = true;
@@ -175,7 +156,6 @@ function performance_manage()
     {
         edge_type = 'dynamic';
     }
-
 
 }
 
@@ -187,15 +167,14 @@ function process_info() // seradit, priradit barvu a vztahy
     for (var i =0; i < li_sources.length; i++)
     {
 
-       
         var result = object_nodes.filter(res => res.source === li_sources[i].source);
-        
+
         result.sort(function(a, b) {
             a = new Date(a.date);
             b = new Date(b.date);
             return b>a ? -1 : b<a ? 1 : 0;
         });
- 
+
         for (var j = 0; j < result.length; j++)
         { 
            
@@ -253,7 +232,7 @@ function links(URI,datesi,kk,current,total,value_count,total_values)
             
                
         if (links[0].length > 0) {
-        
+            //console.log('Links for ' + URI);
             var idx = object_nodes.findIndex((obj => obj.id == kk));
             if(  object_nodes[idx].content_type == 2)
             {
@@ -287,8 +266,7 @@ function links(URI,datesi,kk,current,total,value_count,total_values)
                 process_info();
             }
         }
-               
-                
+                               
     });
 }
 
@@ -297,18 +275,10 @@ function init()
     clean_up();
     for (var i = 0; i <= li_sources.length; i++) {
        
-
         promise_processing(i);
       
     }
 }
-
-
-
-
-
-
-
 
 function circleX(distance, coreX , coreY , angle)
 {
@@ -323,23 +293,40 @@ function circleY(distance, coreX , coreY , angle)
     return y;
 }
 
-function process_relations() //zpracovani vztahu
+function process_relations() //zpracovani vztahu, zefektivnit 
 {
            
     for(var i =0; i < relations.length; i++)
     { 
+
+        /*  if (relations[i].solved == false)
+          {
+              var dst_node =  object_nodes.find(dst_node => dst_node.date.toLocaleString() === relations[i].destination_time );
+  
+              if (dst_node != undefined)
+              {
+  
+                  edges.push({ from: relations[i].id , to: dst_node.id , color:{color:'white'} , width: 5});
+                  relations[i].solved = true;
+           
+                  var idx = relations.findIndex((obj => obj.id == dst_node.id )); // can be array 
+                  if (idx > 0)
+                  {
+                      relations[idx].solved = true;
+                  }
+              }
+          }*/
+           
+           
         if (relations[i].solved == false)
         {
             for(var j =0; j < relations.length; j++)
             {
                         
-             
                 var dst_node =  object_nodes.find(dst_node => dst_node.id === relations[j].id );
-              
                         
                 if (relations[i].destination_time == dst_node.date.toLocaleString())
                 {
-                
                     edges.push({ from: relations[i].id , to: relations[j].id , color:{color:'white'} , width: 5});
                   
                     relations[j].solved = true;
@@ -350,9 +337,9 @@ function process_relations() //zpracovani vztahu
 
     }
 
-
 }
 var days =1;
+var day_pos = [];
 function getDays() //  tridy dle data
 {
     var lastmonth;
@@ -369,32 +356,21 @@ function getDays() //  tridy dle data
         return 0;
     };
     date_array.sort(sort_date);
-    last = date_array[0].getUTCDay();
+    last = date_array[0].getUTCDate();
+    day_pos.push(last);
     for (var i =0; i < date_array.length ; i++)
     {
-        if (last != date_array[i].getUTCDay() )
-        {
-            last = date_array[i].getUTCDay();
+        if (last != date_array[i].getUTCDate() )
+        {          
+           
+            last = date_array[i].getUTCDate();
+            day_pos.push(last);
             days++;
         }
-            
         
     }
-
-  //  var first = date_array[0].getUTCDate();
-  
-  //  var last = date_array[date_array.length-1].getUTCDate();
-   
-  //  days = (last - first)+1;
-
   
 }
-
-
-
-
-
-
 
 function positioning(){ // TODO - prazdne dny vyresit 
 
@@ -405,10 +381,7 @@ function positioning(){ // TODO - prazdne dny vyresit
 
     getDays();
 
- 
     var lastdate;
-   
-
     var inix = 0;
     var ypos = 0;
 
@@ -421,87 +394,142 @@ function positioning(){ // TODO - prazdne dny vyresit
     var day_space_struct = [];
     var changed =false;
     var first_day = true; 
-   // days = 30;
-      
-           
+
     for(var i = 0; i < days ; i++)
     {   
         day_space_struct.push(i*1000);
     }
     var day_counter = 0;
+    
+    inix = 0;
+    ypos = 0;
+    day_counter = 0;
+    first_day = true; 
+    var sector_inix =0; 
+    var upper_sector_inix =0;  
+    var jplus = 0; 
+    var jarray =[]; 
+    var counter =0;  
+    var crash=0;
+    for(var i = 0; i < li_sources.length ; i++)
+    {
 
-    do{
+        jarray[i] = 0;
+    }
+
+    for(var i = 0; i < li_sources.length ; i++)
+    {
+
         changed = false;
-        inix = 0;
-        ypos = 0;
-        day_counter = 0;
-        first_day = true; 
-                
-
-
-        for(var i = 0; i < li_sources.length ; i++)
+        last_date = array_of_source_nodes[i][jplus].date.getUTCDate();
+        for(var j = jplus; j < array_of_source_nodes[i].length ; j++)
         {
-            last_date = array_of_source_nodes[i][0].date.getUTCDate();
-            for(var j = 0; j < array_of_source_nodes[i].length ; j++)
+
+            if (day_pos[day_counter] != array_of_source_nodes[i][j].date.getUTCDate() ) //mfw thinking
             {
-                        
-            
-                    
-                if (last_date != array_of_source_nodes[i][j].date.getUTCDate())
-                {
-                        
-                    day_counter++;
-                    inix = day_space_struct[day_counter];
-                    first_day = true; 
-                     
-                }
-                      
-                if(inix > (day_space_struct[day_counter+1]-300))
-                {
                  
-                    for (var f = day_counter+1; f<day_space_struct.length ; f++ )
-                    {
-        
-                        day_space_struct[f] = day_space_struct[f] + 1000;
-                        //              console.log(day_space_struct);
-                    }
-                    changed = true;
-                }
-                       
-                      
-                inix = inix + 300;
-             
-                if ( first_day == true) // cele datum prvniho dne
-                {
-                    array_of_source_nodes[i][j].content.label = array_of_source_nodes[i][j].date.toLocaleString();
-                    first_day = false;
-                }                           
-                else
-                {
-                    var minute = array_of_source_nodes[i][j].date.getUTCMinutes();
-                    var hour = array_of_source_nodes[i][j].date.getUTCHours();
-                    var seconds =array_of_source_nodes[i][j].date.getUTCSeconds();
-                    var day_time = hour + ":" + minute + ":" + seconds;
-                    array_of_source_nodes[i][j].content.label = day_time;
-                }
-          
-                array_of_source_nodes[i][j].content.x = inix;
-                array_of_source_nodes[i][j].content.y = ypos;
-                //  nodes.push(array_of_source_nodes[i][j].content);
-                last_date = array_of_source_nodes[i][j].date.getUTCDate();
+                break;
             }
+
+            if(j == jplus)
+                sector_inix = inix;
+
+            upper_sector_inix = Math.max(upper_sector_inix, inix);  
+            jarray[i] = j;
+
+            if (last_date != array_of_source_nodes[i][j].date.getUTCDate())
+            {
+                                           
+                first_day = true; 
+                break;
+                     
+            }
+                     
+            if(inix > (day_space_struct[day_counter+1]-300))
+            {
+                 
+                for (var f = day_counter+1; f<day_space_struct.length ; f++ )
+                {
+                    day_space_struct[f] = day_space_struct[f] + 1000;
+                }
+                changed = true;
+                break;
+            }
+                                           
+            inix = inix + 300;
+             
+            if ( first_day == true) // cele datum prvniho dne
+            {
+                array_of_source_nodes[i][j].content.label = array_of_source_nodes[i][j].date.toLocaleString();
+                first_day = false;
+            }                           
+            else
+            {
+                var minute = array_of_source_nodes[i][j].date.getUTCMinutes();
+                var hour = array_of_source_nodes[i][j].date.getUTCHours();
+                var seconds =array_of_source_nodes[i][j].date.getUTCSeconds();
+                var day_time = hour + ":" + minute + ":" + seconds;
+                array_of_source_nodes[i][j].content.label = day_time;
+            }
+            array_of_source_nodes[i][j].content.x = inix;
+            array_of_source_nodes[i][j].content.y = ypos;
+            last_date = array_of_source_nodes[i][j].date.getUTCDate();
+            crash++;
+            if (j == array_of_source_nodes[i].length -1)
+                counter++;
+
+        }
+     
+        if (changed == true) // zdroj znovu 
+        {
+            i--;
+            inix = sector_inix;
+            first_day = true; 
+            //      console.log("zdroj znovu " +jplus);
+
+        }
+        else if(counter == li_sources.length ) // konec 
+        {
+            console.log("konec " +jplus);
+            break;
+        }
+        else if(i == li_sources.length-1 ) // sektor posun
+        {
+            if (jarray[0] == 0)
+                jplus = jarray[0];
+            else
+                jplus = 1 + jarray[0];
+
+            i = -1;
+            ypos = 0;
+            day_counter++;
+            inix = day_space_struct[day_counter];
+            first_day = true;
+           
+            //    console.log("sektor posun " +jplus);
+        }
+        else // zdroj posun
+        {
+          
             ypos = ypos + 120;
-            inix = 0;
-            day_counter = 0;
+            inix = sector_inix;
+            if (jarray[i+1] == 0)
+                jplus = jarray[i+1];
+            else
+                jplus = 1 + jarray[i+1];
+
+            //   console.log("zdroj posun " +jplus);
+
             first_day = true; 
         }
-    }while(changed == true);
+          
+    }
 
     for(var i = 0; i < li_sources.length ; i++)
     {
         for(var j = 0; j < array_of_source_nodes[i].length ; j++)
         {
-          //  console.log(array_of_source_nodes[i][j].content.x + " investigation " + array_of_source_nodes[i][j].content.y);       
+            //  console.log(array_of_source_nodes[i][j].content.x + " investigation " + array_of_source_nodes[i][j].content.y);       
             nodes.push(array_of_source_nodes[i][j].content);
             var month = array_of_source_nodes[i][j].date.getUTCMonth() + 1; //months from 1-12
             var day = array_of_source_nodes[i][j].date .getUTCDate();
