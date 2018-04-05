@@ -19,14 +19,14 @@ var help_array = [];
 var node_counter = 0;
 var cam_node_dates = [];
         
-function promise_processing(n) { //zpracování dat 
+function promise_processing(n) { // data gathering
     //col++;
            
     TA.client.getObject(source_structure[n]).then(function (timeline) {
         //init the title etc
         var title = timeline.rdfs_label;             
         return TA.getEntries(source_structure[n],li_sources[n].source);
-    }).then(function (entries) {
+    }).then(function (entries) { // obtaining of entries 
 
         for (var i = 0; i < entries[0].length; i++) {
             var date = new Date(entries[0][i].timestamp);
@@ -37,7 +37,7 @@ function promise_processing(n) { //zpracování dat
                  
             //  var src = help_array.find(src => src.id === entries);
             // console.log(entries[1]);
-            fin_p(entries[0][i],i,entries[0].length-1,entries[1],date);
+            fin_p(entries[0][i],i,entries[0].length-1,entries[1],date); // entry processing
         }
         //  console.log(dates);
 
@@ -55,7 +55,7 @@ function rec_title(str,letters)
         return rec_title(str,letters-10);
 }
 
-function clean_up()
+function clean_up() // function for structure clearing 
 {
     array_of_source_nodes.length =0; // pole poli s prvky rozdelenych dle zdroju
    
@@ -79,36 +79,30 @@ function clean_up()
 }
 
 
-function fin_p(entry,current,total,my_source,my_date) {
+function fin_p(entry,current,total,my_source,my_date) { // getting data of entry 
           
     node_counter++;
-    Promise.all(TA.loadEntryContents(entry)).then(values => {
+    Promise.all(TA.loadEntryContents(entry)).then(values => { // load of all data connected with entry 
      
         //  console.log(total);
         idk=idk+1;
            
-    for (var j = 0; j < values.length; j++) {
+    for (var j = 0; j < values.length; j++) { // going trough values and storing data into specified structures
         var val = values[j];
         var type = TA.client.getRDFObjectType(val);
-        links(val.URI,dat,idk,current,total,j,values.length); // kontrola konce nutna
+        links(val.URI,dat,idk,current,total,j,values.length); // function to process link data 
         if (type == "TextContent") {
             var tit;
             xxxx = val.text;
-            /* for (var i = 0; i < (xxxx.length/20); i++) {
-                 xxxx=  xxxx.slice(0, 20+(i*20)) + '\n' + xxxx.slice(20+(i*20));
-             }*/
             tit = rec_title(xxxx,100);
             ct++;
-
-
-            object_nodes.push({id: idk,source:my_source, date:my_date, content_type: 0 ,content :{ id: idk , title: tit, label: val.text, x: 0, y: 0, color:'white',shape: 'dot', image: undefined}});
-                   
+            object_nodes.push({id: idk,source:my_source, date:my_date, content_type: 0 ,content :{ id: idk , title: tit, label: val.text, x: 0, y: 0, color:'white',shape: 'dot', image: undefined}});             
             text_data.push({id: idk,content:val.text});
 
         
         }else if (type == "Image") {
            
-            var idx = object_nodes.findIndex((obj => obj.id == idk));//rozliseni typu obsahu pro vzhled
+            var idx = object_nodes.findIndex((obj => obj.id == idk));// resolving content type for node design
 
             if(  object_nodes[idx].content_type == 1)
             {
@@ -139,7 +133,7 @@ function fin_p(entry,current,total,my_source,my_date) {
 });
 }
 
-function performance_manage()
+function performance_manage() // setting of network accroding to node numbers 
 {
     if (node_counter > 200 && node_counter < 300)
     {
@@ -159,7 +153,7 @@ function performance_manage()
 
 }
 
-function process_info() // seradit, priradit barvu a vztahy 
+function process_info() //  function that sorts object nodes, sets their color and adds edges between them
 {
 
     performance_manage();
@@ -191,7 +185,7 @@ function process_info() // seradit, priradit barvu a vztahy
 
 }
 
-function design()
+function design() // function for assigning specific design to nodes according to their data content
 {
   
     for (var i = 2; i <= object_nodes.length+1; i++)
@@ -221,10 +215,10 @@ function design()
 }
 
 
-function links(URI,datesi,kk,current,total,value_count,total_values)
+function links(URI,datesi,kk,current,total,value_count,total_values) // function for loading of link data and storing them to chosen structures 
 {
     var finished = false;
-    if(current==total && value_count == (total_values-1)) //reseni pro konec zpracovani 
+    if(current==total && value_count == (total_values-1)) // check for end of data loading 
     {
         finished = true;
     }
@@ -263,14 +257,14 @@ function links(URI,datesi,kk,current,total,value_count,total_values)
             if (done == li_sources.length)
             {
                    
-                process_info();
+                process_info(); //  calling of function to process loaded data
             }
         }
                                
     });
 }
 
-function init()
+function init() //  initialization, start of loading data 
 {
     clean_up();
     for (var i = 0; i <= li_sources.length; i++) {
@@ -280,20 +274,8 @@ function init()
     }
 }
 
-function circleX(distance, coreX , coreY , angle)
-{
-    var x = coreX + distance * Math.cos(angle * Math.PI/180);
-    return x;
-}
 
-function circleY(distance, coreX , coreY , angle)
-{
-
-    var y = coreY + distance * Math.sin(angle * Math.PI/180);
-    return y;
-}
-
-function process_relations() //zpracovani vztahu, zefektivnit 
+function process_relations() // function for creating edge relations between nodes according to relation data
 {
            
     for(var i =0; i < relations.length; i++)
@@ -340,7 +322,7 @@ function process_relations() //zpracovani vztahu, zefektivnit
 }
 var days =1;
 var day_pos = [];
-function getDays() //  tridy dle data
+function getDays() // function for computing number of days and preparation of day_pos structure for work with sectors
 {
     var lastmonth;
     var lastDay;
@@ -349,7 +331,7 @@ function getDays() //  tridy dle data
     var last;
           
 
-    var sort_date = function (date_1, date_2) { // vzestupne
+    var sort_date = function (date_1, date_2) { // ascending sort of days
             
         if (date_1 > date_2) return 1;
         if (date_1 < date_2) return -1;
@@ -372,7 +354,7 @@ function getDays() //  tridy dle data
   
 }
 
-function positioning(){ // TODO - prazdne dny vyresit 
+function positioning(){ // positioning nodes, creation of day sectors 
 
 
     var adder = 30;
@@ -425,7 +407,7 @@ function positioning(){ // TODO - prazdne dny vyresit
         for(var j = jplus; j < array_of_source_nodes[i].length ; j++)
         {
 
-            if (day_pos[day_counter] != array_of_source_nodes[i][j].date.getUTCDate() ) //mfw thinking
+            if (day_pos[day_counter] != array_of_source_nodes[i][j].date.getUTCDate() ) // leaving cycle if day doesnt belong to current sector 
             {
                  
                 break;
@@ -437,7 +419,7 @@ function positioning(){ // TODO - prazdne dny vyresit
             upper_sector_inix = Math.max(upper_sector_inix, inix);  
             jarray[i] = j;
 
-            if (last_date != array_of_source_nodes[i][j].date.getUTCDate())
+            if (last_date != array_of_source_nodes[i][j].date.getUTCDate()) // leaving cycle
             {
                                            
                 first_day = true; 
@@ -445,7 +427,7 @@ function positioning(){ // TODO - prazdne dny vyresit
                      
             }
                      
-            if(inix > (day_space_struct[day_counter+1]-300))
+            if(inix > (day_space_struct[day_counter+1]-300)) // sector bounds overstepped
             {
                  
                 for (var f = day_counter+1; f<day_space_struct.length ; f++ )
@@ -458,7 +440,7 @@ function positioning(){ // TODO - prazdne dny vyresit
                                            
             inix = inix + 300;
              
-            if ( first_day == true) // cele datum prvniho dne
+            if ( first_day == true) // whole date display ( first day of sector )
             {
                 array_of_source_nodes[i][j].content.label = array_of_source_nodes[i][j].date.toLocaleString();
                 first_day = false;
@@ -480,7 +462,7 @@ function positioning(){ // TODO - prazdne dny vyresit
 
         }
      
-        if (changed == true) // zdroj znovu 
+        if (changed == true) // source again 
         {
             i--;
             inix = sector_inix;
@@ -488,12 +470,12 @@ function positioning(){ // TODO - prazdne dny vyresit
             //      console.log("zdroj znovu " +jplus);
 
         }
-        else if(counter == li_sources.length ) // konec 
+        else if(counter == li_sources.length ) // end
         {
             console.log("konec " +jplus);
             break;
         }
-        else if(i == li_sources.length-1 ) // sektor posun
+        else if(i == li_sources.length-1 ) // sector shift
         {
             if (jarray[0] == 0)
                 jplus = jarray[0];
@@ -508,7 +490,7 @@ function positioning(){ // TODO - prazdne dny vyresit
            
             //    console.log("sektor posun " +jplus);
         }
-        else // zdroj posun
+        else // source shift
         {
           
             ypos = ypos + 120;
@@ -539,12 +521,12 @@ function positioning(){ // TODO - prazdne dny vyresit
         }
     }
    
-    process_relations();
+    process_relations(); // Calling function to process relation data and prepare them fro visualisation.
 
 
 
     
-    invoke();
+    invoke(); // Calling function to visualise the node network. 
 }
 
 

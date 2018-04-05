@@ -1,6 +1,6 @@
 /**
  * rdf4j-client.js
- * A client libraty for the RDF4J server.
+ * A client library for the RDF4J server.
  * 
  * (c) 2017 Radek Burget <burgetr@fit.vutbr.cz>
  * 
@@ -63,6 +63,9 @@ RDFClient.prototype.sendQuery = function(query) {
 	});
 };
 
+/**
+ * Executes an arbitrary query, parses response from RDF4J server and returns date on succes 
+ */
 RDFClient.prototype.getDateBounds = function (query) {
     var client = this;
     var q = this.getPrefixes() + " " + query;
@@ -97,6 +100,9 @@ RDFClient.prototype.queryObjects = function(query,finished) {
 	});
 };
 
+/**
+ * Parses the RDF4J server response and creates a set of objects with the given properties.
+ */
 RDFClient.prototype.bindingsToArray = function(bindings) {
     var ret = [];
  

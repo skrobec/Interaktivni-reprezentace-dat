@@ -177,7 +177,7 @@
 
 
 
-    <script type="text/javascript">
+    <script type="text/javascript"> 
 
         var limit_low;
         var limit_high;
@@ -188,7 +188,10 @@
         var startDate;
         var endDate;
 
-
+        
+        /**
+         * Setting date limits and source listing.
+         */
         TA.DateLimits('ASC').then(function (timelow) {
             limit_low=timelow;
             var pos = timelow.search("T");
@@ -219,6 +222,9 @@
             console.log(limit_low + " rozmezi " + limit_high + " timelines ");
         });
 
+        /**
+      * Function for checking and setting date limit chosen by user. 
+      */
         function timeadd()
         {
             var start = document.getElementById("startsource").value;
@@ -297,6 +303,10 @@
 
         }
 
+
+        /**
+       * Function for clearing time field. 
+       */
         function deletTime(id)
         {
 
@@ -304,6 +314,9 @@
 
         }
 
+        /**
+       * Variable and structure declarations.
+       */
         var color = 'gray';
         var len = undefined;
 
@@ -317,29 +330,18 @@
         var edge_type = '';
         var hide = false;
 
-        sources.push('http://nesfit.github.io/resource/ta#twitter-timeline-DVTVcz');
-        sources.push('http://nesfit.github.io/resource/ta#twitter-timeline-iROZHLAScz');
-        sources.push('http://nesfit.github.io/resource/ta#twitter-timeline-RESPEKT_CZ');
-
-
-        const source = 'http://nesfit.github.io/resource/ta#twitter-timeline-DVTVcz';
-
         var array_of_source_nodes = []; // pole poli s prvky rozdelenych dle zdroju
-        var source_structure = [];
-        var li_sources = [];
-        var promises_array = [];
-        var push_promises = [];
-        var dates= []; // struktura pro datum
-        var date_array = [];
-        var object_nodes = [];
-        var distanceArray = [];
+        var source_structure = [];  // array of source URIs
+        var li_sources = []; // array of li html codes 
+        var dates= []; // structure for holding dates 
+        var date_array = []; // array for holding dates
+        var object_nodes = []; // structure for holding node objects 
         var distanceClasses = []; // struktura pro tridy vzdalenosti dle id
-        var relations = [];
-        var src_date = [];
-        var text_data = [];
-        var photo_data = [];
-        var URL_data = [];
-        var link_data = [];
+        var relations = []; // structure for holding relation between nodes info
+        var text_data = []; // structure for holding node text data
+        var photo_data = []; // structure for holding node photo data
+        var URL_data = []; // structure for holding node URL data
+        var link_data = []; // structure for holding node link data
 
 
         var link_struct = []; // data odkazu
@@ -348,7 +350,9 @@
 
 
 
-
+        /**
+        * Function for chosing which functionality user wants to activate.
+        */
         function choser()
         {
             var fnc = document.getElementById("sel").value;
@@ -371,6 +375,10 @@
 
         }
         var id1 = 0;
+
+        /**
+        * Function for adding source to needed structure and html element, also checking validity of chosen source. 
+        */
         function add()
         {
 
@@ -408,6 +416,10 @@
             }
 
         }
+
+        /**
+       * Function to check source and apply changes to source structures.
+       */
         function source_parse(src,swit)
         {
 
@@ -429,6 +441,10 @@
 
 
         }
+
+        /**
+       * Function for deleting source.
+       */
         function delet(idf)
         {
             alert(idf);
@@ -462,6 +478,10 @@
 
         var lastdate;
         var ar_index=0;
+
+        /**
+        * Function for focusing camera on node according to chosen date.
+       */
         function foc() {
             // updateValues();
             var datum = document.getElementById("para").value;
@@ -505,11 +525,9 @@
         }
 
 
-
-
-
-
-
+        /**
+      * Function for displaying data of node in GUI by applying changes to HTML code.
+      */
         function display_data(id)
         {
 
@@ -581,11 +599,16 @@
 
 
 
-
+        /**
+   * Function for activating physics option upon network.
+   */
         function ready(){
             network.setOptions( { physics: true } );
         }
 
+        /**
+       * Function for setting network options and then creating network with appropriate data. 
+       */
         function invoke() {
 
 

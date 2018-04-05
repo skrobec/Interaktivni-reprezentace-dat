@@ -6,6 +6,9 @@
  * 
  */
 
+/**
+ * Creates a new TA Client.
+ */
 var TAClient = function(serverUrl, repositoryName) {
 	
 	//RDF namespaces used
@@ -28,11 +31,18 @@ var TAClient = function(serverUrl, repositoryName) {
 	this.loadMetadata();
 };
 
+/**
+ * Sets date limits for query.
+ */
 TAClient.prototype.setDateSpan = function(dateStart, dateEnd) {
 	this.dateStart = dateStart;
 	this.dateEnd = dateEnd;
 };
 
+/**
+ * Loads the Date limits.
+ * @return a promise.
+ */
 TAClient.prototype.DateLimits = function (ordering) {
 
     var q = "SELECT ?o"
@@ -43,10 +53,18 @@ TAClient.prototype.DateLimits = function (ordering) {
     return this.client.getDateBounds(q);
 };
 
+/**
+ * Loads all the timelines.
+ * @return a promise.
+ */
 TAClient.prototype.getTimelines = function() {
 	return this.client.getObjectsWhere('?s rdf:type ta:Timeline');
 };
 
+/**
+ * Loads all the entries.
+ * @return a promise.
+ */
 TAClient.prototype.getEntries = function (timelineUri, src) {
    
 	var filter = '';
@@ -84,6 +102,11 @@ TAClient.prototype.loadEntryContents = function(entry) {
 	return promises;
 };
 
+
+/**
+ * Loads all the link contents of specific entry.
+ * @return a promise.
+ */
 TAClient.prototype.loadLinks = function(uri,finished) {
 	//var where = "?s ?p ?o . <" + uri + "> ?link ?s . ?link rdfs:subPropertyOf ta:contextLink";
 	//var where = "?s ?p ?o . <" + uri + "> ?p ?o . ?p rdfs:subPropertyOf ta:contextLink";
