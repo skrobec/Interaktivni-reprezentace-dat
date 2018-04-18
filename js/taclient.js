@@ -54,6 +54,21 @@ TAClient.prototype.DateLimits = function (ordering) {
 };
 
 /**
+ * Loads the Link source and Destination info.
+ * @return a promise.
+ */
+TAClient.prototype.AllLinks = function () {
+
+    var q = "SELECT ?sourceEntry ?destinationEntry"
+		+ " WHERE {"
+		+ " ?s ta:sameURL ?sourceEntry ."
+		+ " ?destinationEntry ta:contains ?s}";
+   
+    console.log(q);
+    return this.client.getAllLinks(q);
+};
+
+/**
  * Loads all the timelines.
  * @return a promise.
  */

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Timeline Analyzer</title>
-
+    
 
 
     <script type="text/javascript" src="js/jquery.min.js"></script>
@@ -42,31 +42,27 @@
         </div>
     </nav>
 
-    <div class=source_class>
+    <div id="contbox" class=source_class>
         <div class="src">
             <h2>Výběr zdrojů</h2>
-            <table class="">
+            <table class="mytab" >
                 <tr>
-                    <th>
-                        <div class="space">
+                    <th height="34">
+                        <div class="space cell">
                             <input class='form-control c_box' id="source" list="browsers" name="browser">
                             <datalist id="browsers">
-                                <!-- <option value="RESPEKT">
-                                 <option value="iROZHLAS">
-                                 <option value="DVTV">
-                                 <option value="VESELOVSKY">
-                                     -->
+                       
                             </datalist>
                         </div>
                     </th>
-                    <th>
-                        <div class="space">
+                    <th height="34">
+                        <div class="space cell">
                             <input onclick="add()" class='form-control c_box' value='Přidat zdroj' type="submit">
                         </div>
                     </th>
 
                     <th>
-                        <div class="space">
+                        <div id="mybox" class="space">
                             <ul class="list-inline" id="adder"></ul>
                         </div>
                     </th>
@@ -89,19 +85,21 @@
                     <th>
                         <div class="space">
                             <input class='form-control c_box' id="startsource" placeholder="Zadejte datum" list="start" name="browser">
-                            <datalist id="start"></datalist>
+                            <datalist id="start">
 
+                            </datalist>
+                           
                         </div>
                     </th>
                     <th>
                         <div class="space">
-                            <input class='form-control c_box' id="endsource" placeholder="Zadejte datum" list="end" name="browser">
+                            <input class='form-control c_box' id="endsource" placeholder="Zadejte datum" list="end"  name="browser">
                             <datalist id="end"></datalist>
-
+                           
                         </div>
                     </th>
                     <th>
-
+                        
                         <div class="space">
                             <input onclick="timeadd()" class='form-control c_box' value='Vytvořit rozmezí' type="submit">
                         </div>
@@ -123,17 +121,17 @@
         <table class="my_table">
             <tr>
                 <th width="200px">
-                    <select id="sel" form="sel" class=form-control>
-                        <option value="1">Funkce 1</option>
-                        <option value="2">Funkce 2</option>
-                        <option value="3">Funkce 3</option>
+                    <select id="sel" form="sel" class="form-control funct shift">
+                        <option value="1">Posun na uzly dle data</option>
+                        <option value="2">Posun na spojené uzly</option>
+                        <option value="3">Zobrazení hran</option>
                     </select>
                 </th>
                 <th width="200px">
-                    <input placeholder='Parametr' class='form-control' name='input' id=para type='text' />
+                    <input placeholder='Parametr' class='form-control funct' name='input' id=para type='text' />
                 </th>
                 <th width="200px">
-                    <input class='form-control' onclick="choser()" form=sel type=submit value='Provést' />
+                    <input class='form-control funct' onclick="choser()" form=sel type=submit value='Provést' />
                 </th>
             </tr>
         </table>
@@ -166,9 +164,9 @@
             <tbody>
                 <tr>
                     <td height="200px"><p id="text_field">Prostor pro zobrazení textových dat.</p></td>
-                    <td id="photo_field" height="200px"><img src="img.jpg" alt="" style="width:200px; height:auto;"></td>
-                    <td id="url_field" height="200px"><a>https://www.irozhlas.cz/veda-technologie/chytre-chodniky-i-lampy-praha-mohla-byt-smart-city-priklad-si-vezme-z-londyna_1708081944_rez</a></td>
-                    <td id="link_field" height="200px">Žádný spojený příspěvek</td>
+                    <td id="photo_field" height="200px">Prostor pro zobrazení obrazových dat.</td>
+                    <td id="url_field" height="200px">Prostor pro zobrazení URL dat.</td>
+                    <td id="link_field" height="200px">Prostor pro zobrazení spojených dat.</td>
                 </tr>
             </tbody>
         </table>
@@ -177,7 +175,10 @@
 
 
 
-    <script type="text/javascript"> 
+    <script type="text/javascript">
+
+
+       
 
         var limit_low;
         var limit_high;
@@ -188,7 +189,6 @@
         var startDate;
         var endDate;
 
-        
         /**
          * Setting date limits and source listing.
          */
@@ -196,15 +196,13 @@
             limit_low=timelow;
             var pos = timelow.search("T");
             startTime = timelow.substr(0,pos);
-            // $("#from").attr("placeholder", timelow.substr(0,pos));
             document.getElementById('from').innerHTML= "Od " + timelow.substr(0,pos);
-            document.getElementById('start').innerHTML += '<option value=' + timelow.substr(0,pos)+ '>' ;
+            document.getElementById('start').innerHTML += '<option value=' + timelow.substr(0,pos)+ '>';
             return TA.DateLimits('DESC');
         }).then(function (timehigh) {
             limit_high=timehigh;
             var pos = timehigh.search("T");
             endTime = timehigh.substr(0,pos);
-            //  $("#to").attr("placeholder", timehigh.substr(0,pos));
             document.getElementById('to').innerHTML= "Do " + timehigh.substr(0,pos);
             document.getElementById('end').innerHTML += '<option value=' + timehigh.substr(0,pos)+ '>' ;
             return TA.getTimelines();
@@ -215,14 +213,16 @@
                 if (timelines.hasOwnProperty(key)) {
                     console.log(key + " -> " + timelines[key].sourceId);
                     document.getElementById('browsers').innerHTML += '<option value=' + timelines[key].sourceId + '>' ;
+                    
                     database_sources.push({src: timelines[key].sourceId, URI: timelines[key].URI});
+                 //   add(timelines[key].sourceId); auto fill sources 
                 }
             }
 
             console.log(limit_low + " rozmezi " + limit_high + " timelines ");
         });
-
-        /**
+       
+      /**
       * Function for checking and setting date limit chosen by user. 
       */
         function timeadd()
@@ -239,11 +239,11 @@
                 alert("Prosím zadejte spravnou hodnotu");
                 return 0;
             }
-            else
-            {
+            else 
+            {   
                 for(var i = 0; i < start.length; i++)
                 {
-
+                    
                     if (i == 4 || i == 7)
                     {
                         if(start[i] != '-'){ alert("Prosím zadejte spravny format");
@@ -258,7 +258,7 @@
                 }
                 for(var i = 0; i < end.length; i++)
                 {
-
+                    
                     if (i == 4 || i == 7)
                     {
                         if(end[i] != '-'){ alert("Prosím zadejte spravny format");
@@ -274,8 +274,6 @@
                 startDate = new Date(start);
                 endDate = new Date(end);
                 console.log(start + " what " + end );
-                // TA.setDateSpan(new Date('2017-08-08'), new Date('2017-08-12'));
-                // TA.setDateSpan(new Date('2017-08-08'), new Date('2017-08-12'));
                 TA.setDateSpan(startDate, endDate);
 
                 var compareStart = new Date(startTime);
@@ -286,73 +284,65 @@
                     alert("Prosím zadejte spravnou hodnotu");
                     return 0;
                 }
-
+               
             }
-
+                
             document.getElementById("startsource").value = '';
             document.getElementById("endsource").value = '';
-
+        
 
             startTime = start;
             endTime = end;
             document.getElementById('timeadder').innerHTML = '<li id=' + 1 +'><a class=source_links onclick=deletTime(' +1+') href=#>'  + start +'</li>';
             document.getElementById('timeadder').innerHTML += '<li id=' + 2 +'><a class=source_links onclick=deletTime(' +2+') href=#>'  + end +'</li>';
-
-
-
+        
 
         }
 
-
         /**
-       * Function for clearing time field. 
-       */
+        * Function for clearing time field. 
+        */
         function deletTime(id)
         {
-
-            document.getElementById('timeadder').innerHTML = '';
-
+            
+                document.getElementById('timeadder').innerHTML = '';
+            
         }
-
-        /**
+        
+       /**
        * Variable and structure declarations.
        */
-        var color = 'gray';
-        var len = undefined;
 
-        //var nodes =  new vis.DataSet();
         var nodes =  [];
         var edges =  [];
         var count = 0;
         var sources = [];
-        var colors = ['rgb(256,168,7)','rgb(255,100,70)','rgb(200,168,159)','rgb(255,168,7)','rgb(255,168,7)']
+        var colors = [];
         var network;
         var edge_type = '';
         var hide = false;
 
+
         var array_of_source_nodes = []; // pole poli s prvky rozdelenych dle zdroju
-        var source_structure = [];  // array of source URIs
+        var source_structure = []; // array of source URIs
         var li_sources = []; // array of li html codes 
-        var dates= []; // structure for holding dates 
+        var dates = []; // structure for holding dates 
         var date_array = []; // array for holding dates
-        var object_nodes = []; // structure for holding node objects 
+        var object_nodes = [];  // structure for holding node objects 
         var distanceClasses = []; // struktura pro tridy vzdalenosti dle id
-        var relations = []; // structure for holding relation between nodes info
+        var relations = [];  // structure for holding relation between nodes info
         var text_data = []; // structure for holding node text data
         var photo_data = []; // structure for holding node photo data
         var URL_data = []; // structure for holding node URL data
         var link_data = []; // structure for holding node link data
-
+        var white_edges = []; // structure for edge manipulation
+   
 
         var link_struct = []; // data odkazu
-
-
-
-
-
-        /**
-        * Function for chosing which functionality user wants to activate.
-        */
+   
+      /**
+      * Function for chosing which functionality user wants to activate.
+      */
         function choser()
         {
             var fnc = document.getElementById("sel").value;
@@ -364,32 +354,131 @@
                 funkce3();
         }
 
-        function funkce2()
+        var fc2idx = 0;
+        var fc2idx2 = 0;
+        var lastselected;
+        var sec = false;
+
+       /**
+       * Function for focusing camera on nodes related to selected node.
+       */
+        function funkce2() // TODO focus on related
         {
 
+            var result = white_edges.filter(result => result.id === idselected);
+            var result2 = white_edges.filter(result => result.to === idselected);
+            result2.push({id: idselected , from: idselected , to: "ntd" , color:{color:'white'} , width: 5});
+            console.log(result);
+
+            if((result === undefined || result.length == 0) && (result2 === undefined || result2.length == 0))
+            {
+                alert("Vztah nenalezen");
+            }
+            else 
+            {   
+               
+
+                var nodeId;
+                var helparr;
+                if (idselected == lastselected)
+                {
+                    fc2idx++;
+                    if(fc2idx >= result.length && sec == false )
+                    {
+                        if((result2 != undefined && result2.length != 0))
+                            sec = true;
+
+                        fc2idx=0;
+                    }
+                    else if(fc2idx >= result2.length )
+                    {
+                        if((result != undefined && result.length != 0))
+                            sec = false;
+
+                        fc2idx=0;
+                    }
+                   
+                }
+                else 
+                {
+                    sec = false;
+                    fc2idx = 0;
+                }
+
+                if ((result === undefined || result.length == 0))
+                {
+                    sec = true;
+                }
+
+                lastselected = idselected;
+
+                if(sec == false)
+                {
+                    nodeId = result[fc2idx].to;
+                }
+                else{
+                    nodeId = result2[fc2idx].from;
+                }
+                
+                console.log("strange.jpg" + nodeId);
+                var options = {
+                    // position: {x:positionx,y:positiony}, // this is not relevant when focusing on nodes
+                    scale: 1.0,
+                    offset: {x:0,y:0},
+                    animation: {
+                        duration: 1000,
+                        easingFunction: 'easeInQuad'
+                    }
+                };
+               
+
+
+                network.focus(nodeId,options);
+            }
         }
 
+        var hideedge = false;
+
+       /**
+       * Function for switching between visualizing and hiding edges.
+       */
         function funkce3()
         {
-
+           
+            if(hide == false)
+            {
+                console.log("nice");
+                hideedge = true;
+                network.setOptions({edges:{hidden:true}});
+            }               
+            else
+            {
+                hideedge = false;
+                network.setOptions({edges:{hidden:false}});
+            }
 
         }
         var id1 = 0;
-
-        /**
-        * Function for adding source to needed structure and html element, also checking validity of chosen source. 
-        */
-        function add()
+        var surplus = 0;
+       /**
+       * Function for adding source to needed structure and html element, also checking validity of chosen source. 
+       */
+        function add(val)
         {
+            var src;
+            if(val == undefined)
+                src = document.getElementById("source").value;
+            else
+                src = val;
 
-            var src = document.getElementById("source").value;
+
             if ( src == '')
             {
                 alert("Prosím zadejte hodnotu");
                 return 0;
             }
-
-
+                
+            
             document.getElementById("source").value = '';
             var check = li_sources.find(check => check.source === src);
             if (check != undefined )
@@ -397,7 +486,7 @@
                 alert("jiz zadano");
             }
             else
-            {
+            {   
                 var test = source_parse(src,0);
                 if (test == 0)
                 {
@@ -405,21 +494,29 @@
                     var k = document.getElementById('adder').innerHTML;
                     document.getElementById('adder').innerHTML = k + '<li id=' + id1 +'><a class=source_links onclick=delet(' +id1+') href=#>'  + src +'</li>';
                     id1++;
+
+                    var mybox = document.getElementById('mybox').offsetHeight; //li
+                    var contentbox = document.getElementById('contbox').offsetHeight;
+                    if (mybox > 60 +surplus ) {
+                       
+                        surplus += 20;
+                      
+                        document.getElementById('contbox').style.height =  (contentbox +20) + 'px';
+                    } 
                 }
                 else
                 {
                     alert("Zadejte platnou hodnotu");
                 }
-
-
-
+                
+                
+               
             }
 
         }
-
         /**
-       * Function to check source and apply changes to source structures.
-       */
+        * Function to check source and apply changes to source structures.
+        */
         function source_parse(src,swit)
         {
 
@@ -437,14 +534,14 @@
                 }
             }
             return 1;
-
-
-
+       
+     
+           
         }
 
         /**
-       * Function for deleting source.
-       */
+        * Function for deleting source.
+        */
         function delet(idf)
         {
             alert(idf);
@@ -473,12 +570,22 @@
             }
 
             document.getElementById('adder').innerHTML = str ;
+            var mybox = document.getElementById('mybox').offsetHeight; //li
+            var contentbox = document.getElementById('contbox').offsetHeight;
+            if(surplus > 0 && contentbox > 130)
+            {
+                if (mybox < 40 + surplus) {
+                       
+                    surplus -= 20;
+                    document.getElementById('contbox').style.height = (contentbox - 20) + 'px';
+                } 
+            }
+            
 
         }
 
         var lastdate;
         var ar_index=0;
-
         /**
         * Function for focusing camera on node according to chosen date.
        */
@@ -487,8 +594,6 @@
             var datum = document.getElementById("para").value;
             console.log(datum);
 
-
-            // var result = distanceClasses.find(result => result.time === datum);
             var result = cam_node_dates.filter(result => result.date === datum);
             console.log(result);
 
@@ -498,7 +603,7 @@
             }
             else
             {
-
+              
                 if (datum == lastdate)
                 {
                     ar_index++;
@@ -509,7 +614,6 @@
 
                 var nodeId = result[ar_index].id;
                 var options = {
-                    // position: {x:positionx,y:positiony}, // this is not relevant when focusing on nodes
                     scale: 1.0,
                     offset: {x:0,y:0},
                     animation: {
@@ -517,102 +621,123 @@
                         easingFunction: 'easeInQuad'
                     }
                 };
-                // statusUpdateSpan.innerHTML = 'Focusing on node: ' + nodeId;
-                // finishMessage = 'Node: ' + nodeId + ' in focus.';
+
                 network.focus(nodeId,options);
             }
 
-        }
+        }     
 
-
+        var loadedField = [];
+        var deselection = [];
         /**
-      * Function for displaying data of node in GUI by applying changes to HTML code.
-      */
-        function display_data(id)
+        * Function for displaying data of node in GUI by applying changes to HTML code.
+        */
+        function display_data(id,sit)
         {
 
-            var result = text_data.find(result => result.id === id);
-            if(result === undefined)
-                document.getElementById('text_field').innerHTML = "Textová data neobsažena";
-            else
-                document.getElementById('text_field').innerHTML = result.content;
-
-            result = photo_data.filter(res => res.id === id);
-            if(result.length > 1)
+           
+            var node = object_nodes.find(node => node.id === id);
+            var isloaded = loadedField.find(node => node.idx === id);
+            if(isloaded == undefined)
             {
-                document.getElementById('photo_field').innerHTML = '';
-                for (var i =0; i < result.length; i++)
-                {
-                    document.getElementById('photo_field').innerHTML +=   result[i].content + '<br/>'  ;
-                }
+                fin_p2(node.entry_object,id,sit);
+                loadedField.push({idx:id});
             }
-            else
+
+      
+           
+            design2(id);
+           
+            if(sit == 1)
             {
-                result = photo_data.find(result => result.id === id);
+
+             
+                var result = text_data.find(result => result.id === id);
                 if(result === undefined)
-                    document.getElementById('photo_field').innerHTML = "Fotografie neobsažena";
+                    document.getElementById('text_field').innerHTML = "Textová data neobsažena";
                 else
-                    document.getElementById('photo_field').innerHTML = result.content;
-            }
+                    document.getElementById('text_field').innerHTML = result.content;
 
-            result = URL_data.filter(res => res.id === id);
-            if(result.length > 1)
-            {
-                document.getElementById('url_field').innerHTML ='';
-                for (var i =0; i < result.length; i++)
+                result = photo_data.filter(res => res.id === id);
+                if(result.length > 1)
                 {
-                    document.getElementById('url_field').innerHTML += result[i].content + '<br/>'  ;
-                }
-            }
-            else
-            {
-                result = URL_data.find(result => result.id === id);
-                if(result === undefined)
-                    document.getElementById('url_field').innerHTML = "URL adresa neobsažena";
+                    document.getElementById('photo_field').innerHTML = '';
+                    for (var i =0; i < result.length; i++)
+                    {
+                        document.getElementById('photo_field').innerHTML +=   result[i].content + '<br/>'  ;
+                    }
+                }           
                 else
-                    document.getElementById('url_field').innerHTML = result.content;
-            }
-
-
-            result = link_data.filter(res => res.id === id);
-            if(result.length > 1)
-            {
-                document.getElementById('link_field').innerHTML ='';
-                for (var i =0; i < result.length; i++)
                 {
-                    document.getElementById('link_field').innerHTML +=  result[i].content + '<br/>' ;
+                    result = photo_data.find(result => result.id === id);
+                    if(result === undefined)
+                        document.getElementById('photo_field').innerHTML = "Fotografie neobsažena";
+                    else
+                        document.getElementById('photo_field').innerHTML = result.content;
                 }
-            }
-            else
-            {
-                result = link_data.find(result => result.id === id);
-                if(result === undefined)
-                    document.getElementById('link_field').innerHTML = "Link data neobsažena";
+
+                result = URL_data.filter(res => res.id === id);
+                if(result.length > 1)
+                {
+                    document.getElementById('url_field').innerHTML ='';
+                    for (var i =0; i < result.length; i++)
+                    {
+                        document.getElementById('url_field').innerHTML += result[i].content + '<br/>'  ;
+                    }
+                }           
                 else
-                    document.getElementById('link_field').innerHTML = result.content;
+                {
+                    result = URL_data.find(result => result.id === id);
+                    if(result === undefined)
+                        document.getElementById('url_field').innerHTML = "URL adresa neobsažena";
+                    else
+                        document.getElementById('url_field').innerHTML = result.content;
+                }
+
+
+                result = link_data.filter(res => res.id === id);
+                if(result.length > 1)
+                {
+                    document.getElementById('link_field').innerHTML ='';
+                    for (var i =0; i < result.length; i++)
+                    {
+                        document.getElementById('link_field').innerHTML +=  result[i].content + '<br/>' ;
+                    }
+                }           
+                else
+                {
+                    result = link_data.find(result => result.id === id);
+                    if(result === undefined)
+                        document.getElementById('link_field').innerHTML = "Link data neobsažena";
+                    else
+                        document.getElementById('link_field').innerHTML = result.content;
+                }
+           
             }
-
-
         }
 
 
 
-
+     
 
         /**
-   * Function for activating physics option upon network.
-   */
+       * Function for activating physics option upon network.
+       */
         function ready(){
             network.setOptions( { physics: true } );
         }
 
         /**
-       * Function for setting network options and then creating network with appropriate data. 
-       */
+        * Function for setting network options and then creating network with appropriate data. 
+        */
+        var visnodes;
+        var visedges;
+        var idselected;
         function invoke() {
 
 
 
+           
             var mynetwork = document.getElementById('canv');
             var x = - mynetwork.clientWidth / 2 + 50;
             var y = - mynetwork.clientHeight / 2 + 50;
@@ -620,18 +745,21 @@
 
             for (var i =0; i < li_sources.length; i++)
             {
-                nodes.push({id: 10000+i, x: 0, y: 0 + (step*i), label: li_sources[i].source, color: colors[i], fixed: true, physics:false});
+                nodes.push({id: 100000+i, x: 0, y: 0 + (step*i), label: li_sources[i].source, color: colors[i], fixed: true, physics:false});
             }
-
+            visnodes = new vis.DataSet(nodes);
+            visedges = new vis.DataSet(edges);
+          
             var container = document.getElementById('canv');
             var data = {
-                nodes: nodes,
-                edges: edges
+                nodes: visnodes,
+                edges: visedges
             };
             var options = {
                 interaction: {
                     navigationButtons: true,
                     keyboard: true,
+                    hover:true,
                     hideEdgesOnDrag: hide
                 },
 
@@ -646,13 +774,11 @@
                     margin: 10
                 },
                 physics: false,
-
+            
                 edges: {
-                    // width: 2
+                   // width: 2
                     smooth:{type:edge_type},
-
-
-
+                
                 }
             };
             network = new vis.Network(container, data, options);
@@ -665,9 +791,22 @@
             network.on("click", function (params) {
                 params.event = "[original event]";
                 console.log('click event, getNodeAt returns: ' + this.getNodeAt(params.pointer.DOM));
-                display_data(this.getNodeAt(params.pointer.DOM));
+                if(this.getNodeAt(params.pointer.DOM) != undefined)
+                    display_data(this.getNodeAt(params.pointer.DOM),1);
             });
 
+            network.on("hoverNode", function (params) {
+                params.event = "[original event]";
+              
+                console.log('click event, getNodeAt returns: ' + this.getNodeAt(params.pointer.DOM));
+                if(this.getNodeAt(params.pointer.DOM) != undefined)
+                    display_data(this.getNodeAt(params.pointer.DOM),2);
+            });
+            
+            network.on("selectNode", function (params) {
+                console.log('selectEdge Event:', params);
+                idselected = this.getNodeAt(params.pointer.DOM);
+            });
 
         }
 

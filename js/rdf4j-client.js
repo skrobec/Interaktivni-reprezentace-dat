@@ -83,6 +83,24 @@ RDFClient.prototype.getDateBounds = function (query) {
     });
 };
 
+/**
+ * Executes query, returns data on succes without parsing them // less processing 
+ */
+RDFClient.prototype.getAllLinks = function (query) {
+    var client = this;
+    var q = this.getPrefixes() + " " + query;
+    return new Promise(function (resolve, reject) {
+        var p = client.sendQuery(q);
+        p.then(function (data) {
+            resolve(data);
+        }).catch(function (reason) {
+            console.log("ebin");
+            reject(reason);
+        });
+    });
+};
+
+
 
 /**
  * Executes an arbitrary query and creates an array of objects with the corresponsing properies.
