@@ -854,6 +854,11 @@
                     display_data(this.getNodeAt(params.pointer.DOM),2);
             });
 
+             network.on("selectNode", function (params) {
+                console.log('selectEdge Event:', params);
+                idselected = this.getNodeAt(params.pointer.DOM);
+            });
+
             
 
         }
