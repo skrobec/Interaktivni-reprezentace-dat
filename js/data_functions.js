@@ -225,6 +225,36 @@ function design2(idf) // function for assigning specific design to nodes accordi
 }
 
 
+function design() // function for assigning specific design to nodes according to their data content
+{
+  
+    for (var i = 2; i <= object_nodes.length+1; i++)
+    {
+      
+        var idx = object_nodes.findIndex((obj => obj.id == i));
+     
+        if(  object_nodes[idx].content_type == 1)
+        {
+            object_nodes[idx].content.shape = 'circularImage';
+            object_nodes[idx].content.image = 'style/relation.png';
+        }
+        else if(  object_nodes[idx].content_type == 2)
+        {
+            object_nodes[idx].content.shape = 'circularImage';
+            object_nodes[idx].content.image = 'style/photo.png';
+        }
+        else if(  object_nodes[idx].content_type == 3)
+        {
+            object_nodes[idx].content.shape = 'circularImage';
+            object_nodes[idx].content.image = 'style/photorelation.png';
+        }
+
+
+    }
+  
+}
+
+
 
 
 
