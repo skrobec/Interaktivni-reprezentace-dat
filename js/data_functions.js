@@ -2,60 +2,13 @@
 
 var idk = 1;
 var dt = 1;
-var cr = 0;
 var dat;
 var ct;
-var col = 0;
 var done =0;
-var help_array = [];
 var node_counter = 0;
 var cam_node_dates = [];
 var LinksInfo;
-        
-function promise_processing(n) { // data gathering
-            
-    TA.client.getObject(source_structure[n]).then(function (timeline) {
-        //init the title etc
-        var title = timeline.rdfs_label;
-               
-                
-        return TA.getEntries(source_structure[n],li_sources[n].source);
-    }).then(function (entries) { // obtaining of entries 
-        console.log(entries);
-        for (var i = 0; i < entries[0].length; i++) {
-            var date = new Date(entries[0][i].timestamp);
-            dat = date;
-            dates.push({ id: dt++, datum: date });
-            date_array.push(date);
-            idk++;
-            node_counter++;
-            object_nodes.push({id: idk,source:entries[1], entry:entries[0][i].URI, entry_object:entries[0][i], date: dat, content_type: 0 ,content :{ id: idk , title: "", label: "", x: 0, y: 0, color:'white',shape: 'dot', image: undefined}});                  
-        }
-        
-        done++;
-
-
-        if ( done == li_sources.length)
-        {
-            process_info(); //  calling of function to process loaded data
-        }
-
-
-    });
-
-}
-
-
-check_array = [];
-function rec_title(str,letters)
-{
-    if (str.length > letters)
-        return str.slice(0,letters) + "...";
-    else if(str.length < 10)
-        return "";
-    else
-        return rec_title(str,letters-10);
-}
+var prom_array = [];
 
 function clean_up() // function for structure clearing 
 {
@@ -74,7 +27,88 @@ function clean_up() // function for structure clearing
     photo_data.length =0;
     URL_data.length =0;
     link_data.length =0;
+    days =1;
+    day_pos.length =0;
+    LinksInfo = 0;
+    prom_array.length =0;
+    cam_node_dates.length =0;
+    node_counter = 0;
+    dt = 1;
+    ct = 0;
+    dat = 0;
+    visnodes = 0;
+    visedges = 0;
+    idselected = 0;
+    loadedField.length =0;
+    ar_index=0;
+    lastdate =0;
+    id1 = 0;
+    surplus = 0;
+    hideedge = false;
+    fc2idx2 = 0;
+    sec = false;
+    lastselected = 0;
+    hide=false;
+    edge_type = '';
+    network=0;
+    colors.length =0;
+    alladd.lenght =0;
 }
+
+function promise_processing() { // data gathering
+
+    for (var i = 0; i < li_sources.length; i++) {
+
+        prom_array.push(TA.getEntries(source_structure[i],li_sources[i].source));
+      
+    }
+
+    Promise.all(prom_array).then(entries => {
+
+        for (var j = 0; j < entries.length; j++) {
+            console.log(entries[j]);
+            for (var i = 0; i < entries[j][0].length; i++) {
+                
+                var date = new Date(entries[j][0][i].timestamp);
+                dat = date;
+                dates.push({ id: dt++, datum: date });
+                date_array.push(date);
+           
+                idk++;
+                node_counter++;
+        
+                object_nodes.push({id: idk,source:entries[j][1], entry:entries[j][0][i].URI, entry_object:entries[j][0][i], date: dat, content_type: 0 ,content :{ id: idk , title: "", label: "", x: 0, y: 0, color:'white',shape: 'dot', image: undefined}}); 
+  
+            }
+        }
+        process_info();
+
+        });
+         
+}
+        
+
+
+check_array = [];
+function rec_title(str,letters)
+{
+    if (str.length > letters)
+        return str.slice(0,letters) + "...";
+    else if(str.length < 10)
+        return "";
+    else
+        return rec_title(str,letters-10);
+}
+
+function rec_title2(str,letters)
+{
+    if (str.length > letters)
+        return str.slice(0,letters) + "...";
+    else 
+        return str;
+}
+
+
 
 function fin_p2(entry,idf,sit) { // getting data of entry 
           
@@ -92,6 +126,8 @@ function fin_p2(entry,idf,sit) { // getting data of entry
 
             tit = rec_title(xxxx,100);
             ct++;
+
+  
             visnodes.update([{id:idf, title:tit}]);
             text_data.push({id: idf,content:val.text});
 
@@ -102,7 +138,6 @@ function fin_p2(entry,idf,sit) { // getting data of entry
 
             if (idx != undefined)
             {
-
                 if(  object_nodes[idx].content_type == 1)
                 {
                     object_nodes[idx].content_type = 3;
@@ -138,7 +173,7 @@ function links2(URI,kk,sit) // function for loading of link data and storing the
             
                
         if (links[0].length > 0) {
-            //console.log('Links for ' + URI);
+
             var idx = object_nodes.findIndex((obj => obj.id == kk));
             if(  object_nodes[idx].content_type == 2)
             {
@@ -168,6 +203,7 @@ function links2(URI,kk,sit) // function for loading of link data and storing the
 function design2(idf) // function for assigning specific design to nodes according to their data content
 {
   
+
         var node = object_nodes.find(obj => obj.id === idf);
         console.log(idf + "idk " +node);
 
@@ -183,8 +219,13 @@ function design2(idf) // function for assigning specific design to nodes accordi
         {
             visnodes.update([{id:idf, shape:'circularImage', image:'style/photorelation.png'}]); 
         }
+
+
   
 }
+
+
+
 
 
 function performance_manage() // setting of network accroding to node numbers 
@@ -215,18 +256,49 @@ function process_info() //  function that sorts object nodes, sets their color a
 
     performance_manage();
     design();
-
+    var colcounter=0;
+    document.getElementById('balloon').innerHTML = "<div class='pad'></div>";
     for (var i =0; i < li_sources.length; i++)
     {
 
+
         var result = object_nodes.filter(res => res.source === li_sources[i].source); //array
-        colors.push('rgb(' + (i*30)%255 + ',' + (i*50)%255  + ',' + (i*60)%255  + ')');      
+        colors.push('rgb(' + (i*30)%255 + ',' + (i*50)%255  + ',' + (i*60)%255  + ')'); 
+        var restab;
+
+        if(i == 0)
+        {
+            restab = "<tr>";
+        }
+
+        restab += "<td align='center' width='100px' height='60px'>"
+          + "<div class='color-box' style='background-color: rgb(" + (i*30)%255 + ',' + (i*50)%255  + ',' + (i*60)%255  + ");'></div>"
+           +          " <div class='legend'>"
+           +               "<p class='text-box'>" + rec_title2(li_sources[i].source,20)  + "</p>"
+            +          "</div>"
+           +      "</td>";
+
        
+
+        if( i == (li_sources.length-1) )
+        {
+            document.getElementById('permalegend').innerHTML = restab + "</tr>";
+        }
+        else if( (i%10) == 0 && i != 0)
+        {
+
+            restab += "</tr>";
+            restab += "<tr>";
+        }
+      
+
+        
        result.sort(function(a, b) {
             a = new Date(a.date);
             b = new Date(b.date);
             return b>a ? -1 : b<a ? 1 : 0;
         });
+
 
         for (var j = 0; j < result.length; j++)
         { 
@@ -244,28 +316,26 @@ function process_info() //  function that sorts object nodes, sets their color a
 
 }
 
+
+
 function init() //  initialization, start of loading data 
 {
         clean_up();
         TA.AllLinks().then(function (LinkArray){
    
             LinksInfo = LinkArray;
+            promise_processing();
                  
         });
-    for (var i = 0; i < li_sources.length; i++) {
-       
-      
-        promise_processing(i);
-      
-    }
+
+    
 }
 
-function process_relations2() // function for creating edge relations between nodes according to relation data
+function process_relations2()
 {
     for(var i =0; i < LinksInfo.results.bindings.length; i++)
     { 
                     
-       // console.log(LinksInfo.results.bindings[i].sourceEntry.value);
                     var processed = false;
                     var src_node =  object_nodes.find(src_node => src_node.entry === LinksInfo.results.bindings[i].sourceEntry.value );
                     var dst_node =  object_nodes.find(dst_node => dst_node.entry === LinksInfo.results.bindings[i].destinationEntry.value );
@@ -297,10 +367,10 @@ function process_relations2() // function for creating edge relations between no
                     }   
                         
          
+    }
+
+    
 }
-
-
-
 
 var days =1;
 var day_pos = [];
@@ -349,6 +419,8 @@ function getDays() // function for computing number of days and preparation of d
   
 }
 
+
+
 function positioning(){ // positioning nodes, creation of day sectors 
 
 
@@ -357,17 +429,7 @@ function positioning(){ // positioning nodes, creation of day sectors
     var cangle = 30;
 
     getDays();
-
-    console.log(days+ "investigation");
     var lastdate;
-    //  console.log(dates);
-    // console.log(object_nodes);
-    //  console.log(relations);
-    // console.log(src_date);
-    // console.log(sources);
-    //  console.log(distanceClasses);
-  
-
     var inix = 0;
     var ypos = 0;
 
@@ -380,7 +442,6 @@ function positioning(){ // positioning nodes, creation of day sectors
     var day_space_struct = [];
     var changed =false;
     var first_day = true; 
-   // days = 30;
       
            
     for(var i = 0; i < days ; i++)
@@ -418,6 +479,9 @@ function positioning(){ // positioning nodes, creation of day sectors
         if(jplus < array_of_source_nodes[i].length)
             last_date = array_of_source_nodes[i][jplus].date.getUTCDate();
 
+
+       
+
         err++;
         for(var j = jplus; j < array_of_source_nodes[i].length ; j++)
         {
@@ -433,6 +497,10 @@ function positioning(){ // positioning nodes, creation of day sectors
 
             jarray[i] = j;
 
+            if(array_of_source_nodes[i][j] == "lidovky")
+            {
+
+            }
             
             if (last_date != array_of_source_nodes[i][j].date.getUTCDate()) // leaving cycle
             {                       
@@ -489,8 +557,8 @@ function positioning(){ // positioning nodes, creation of day sectors
                 counter++;
 
         }
-    
-      
+  
+          
         if (changed == true) // source again 
         {
           
@@ -498,11 +566,9 @@ function positioning(){ // positioning nodes, creation of day sectors
             inix = sector_inix;
             first_day = true; 
 
-
         }
         else if(counter == li_sources.length ) // end
         {
-  
             break;
         }
         else if(i == li_sources.length-1 ) // sector shift
@@ -517,8 +583,8 @@ function positioning(){ // positioning nodes, creation of day sectors
             i = -1;
             ypos = 0;
                 
-
             day_counter++;
+
             inix = day_space_struct[day_counter];
             sector_inix = inix;
             first_day = true;
@@ -537,6 +603,7 @@ function positioning(){ // positioning nodes, creation of day sectors
             else
                 jplus = 1 + jarray[i+1];
 
+      
 
             first_day = true; 
         }
@@ -544,26 +611,24 @@ function positioning(){ // positioning nodes, creation of day sectors
     }
  
 
-
-
-                
-
     for(var i = 0; i < li_sources.length ; i++)
     {
         for(var j = 0; j < array_of_source_nodes[i].length ; j++)
-        { 
-            nodes.push(array_of_source_nodes[i][j].content);
+        {
          
+            nodes.push(array_of_source_nodes[i][j].content);      
 
         }
     }
    
-    process_relations2();// Calling function to process relation data and prepare them fro visualisation.
+    process_relations2();
 
 
     
     invoke(); // Calling function to visualise the node network. 
 }
+
+
 
 
 

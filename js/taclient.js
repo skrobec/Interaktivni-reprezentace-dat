@@ -1,10 +1,4 @@
-/*
- * taclient.js
- * Timeline analyzer client JS library.
- * 
- * (c) Radek Burget 2017
- * 
- */
+
 
 /**
  * Creates a new TA Client.
@@ -64,7 +58,6 @@ TAClient.prototype.AllLinks = function () {
 		+ " ?s ta:sameURL ?sourceEntry ."
 		+ " ?destinationEntry ta:contains ?s}";
    
-    console.log(q);
     return this.client.getAllLinks(q);
 };
 
@@ -123,9 +116,7 @@ TAClient.prototype.loadEntryContents = function(entry) {
  * @return a promise.
  */
 TAClient.prototype.loadLinks = function(uri,finished) {
-	//var where = "?s ?p ?o . <" + uri + "> ?link ?s . ?link rdfs:subPropertyOf ta:contextLink";
-	//var where = "?s ?p ?o . <" + uri + "> ?p ?o . ?p rdfs:subPropertyOf ta:contextLink";
-	//return this.client.getObjectArrayWhere(where);
+
 	
 	var q = "SELECT ?p ?o ?label ?dtime ?text ?src ?srclabel"
 		+ " WHERE {<" + uri + "> ?p ?o . ?p rdfs:subPropertyOf ta:contextLink ." 

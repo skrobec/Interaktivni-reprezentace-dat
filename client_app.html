@@ -33,9 +33,9 @@
                 <a class='navbar-brand active' href=#>Timeline analyzer</a>
             </div>
             <ul class='nav navbar-nav'>
-                <li><a href=main.php>Funkce</a></li>
-                <li><a href=zamestnanci.php>Refresh</a></li>
-                <li><a onclick="ye()">Návod­</a></li>
+                <li><a href=#med>Interaktivní reprezentace dat</a></li>
+                <li><a href="http://localhost/timeline-analyzer-master/timeline-analyzer-master/timeline-analyzer-web/src/main/webapp/bp.pdf">Dokumentace</a></li>
+              
 
 
             </ul>
@@ -51,13 +51,16 @@
                         <div class="space cell">
                             <input class='form-control c_box' id="source" list="browsers" name="browser">
                             <datalist id="browsers">
-                       
+                               
                             </datalist>
                         </div>
                     </th>
                     <th height="34">
                         <div class="space cell">
                             <input onclick="add()" class='form-control c_box' value='Přidat zdroj' type="submit">
+                            <br />
+                            <br />
+                            <input onclick="alladdfunc()" class='form-control c_box' value='Přidat všechny zdroje' type="submit">
                         </div>
                     </th>
 
@@ -145,13 +148,37 @@
             <input class='form-control' onclick="init()" type=submit value='Inicializovat síť' />
         </div>
     </div>
+
+    <div class="content_class">
+        <div id="balloon"></div>
+        <table class="">
+            <tbody id="permalegend">
+              
+            </tbody>
+        </table>
+    </div>
+
+
+
     <div class="canv_class" id="canv">
 
     </div>
 
     <div class="content_class" id="cont">
         <h2>Zobrazení dat prvků</h2>
-        <p>Kategorie, které může jednotlivý prvek obsahovat</p>
+        
+        <table class="source_table">
+            <colgroup>
+                <col style="width: 50%" />
+                <col style="width: 50%" />
+            </colgroup>
+            <tbody>
+                <tr>
+                    <td><h4>Kategorie, které může jednotlivý prvek obsahovat</h4></td>
+                    <td ><h4 id ="source_show">Zdroj</h4></td>
+                </tr>
+            </tbody>
+        </table>
         <table class="table table-hover">
             <thead>
                 <tr>
@@ -172,6 +199,8 @@
         </table>
     </div>
 
+    
+
 
 
 
@@ -188,6 +217,7 @@
         var endTime;
         var startDate;
         var endDate;
+        var alladd = [];
 
         /**
          * Setting date limits and source listing.
@@ -196,6 +226,7 @@
             limit_low=timelow;
             var pos = timelow.search("T");
             startTime = timelow.substr(0,pos);
+            // $("#from").attr("placeholder", timelow.substr(0,pos));
             document.getElementById('from').innerHTML= "Od " + timelow.substr(0,pos);
             document.getElementById('start').innerHTML += '<option value=' + timelow.substr(0,pos)+ '>';
             return TA.DateLimits('DESC');
@@ -203,6 +234,7 @@
             limit_high=timehigh;
             var pos = timehigh.search("T");
             endTime = timehigh.substr(0,pos);
+            //  $("#to").attr("placeholder", timehigh.substr(0,pos));
             document.getElementById('to').innerHTML= "Do " + timehigh.substr(0,pos);
             document.getElementById('end').innerHTML += '<option value=' + timehigh.substr(0,pos)+ '>' ;
             return TA.getTimelines();
@@ -215,12 +247,25 @@
                     document.getElementById('browsers').innerHTML += '<option value=' + timelines[key].sourceId + '>' ;
                     
                     database_sources.push({src: timelines[key].sourceId, URI: timelines[key].URI});
-                 //   add(timelines[key].sourceId); auto fill sources 
+                    alladd.push(timelines[key].sourceId);
+                 
                 }
             }
 
             console.log(limit_low + " rozmezi " + limit_high + " timelines ");
         });
+
+       /**
+     * Function for adding all sources  
+     */
+        function alladdfunc()
+        {
+            for(var i = 0; i < alladd.length; i++)
+            {
+                add(alladd[i]);
+            }
+
+        }
        
       /**
       * Function for checking and setting date limit chosen by user. 
@@ -273,7 +318,7 @@
                 }
                 startDate = new Date(start);
                 endDate = new Date(end);
-                console.log(start + " what " + end );
+              
                 TA.setDateSpan(startDate, endDate);
 
                 var compareStart = new Date(startTime);
@@ -315,7 +360,6 @@
 
         var nodes =  [];
         var edges =  [];
-        var count = 0;
         var sources = [];
         var colors = [];
         var network;
@@ -332,6 +376,7 @@
         var distanceClasses = []; // struktura pro tridy vzdalenosti dle id
         var relations = [];  // structure for holding relation between nodes info
         var text_data = []; // structure for holding node text data
+      //  var source_data = []; // structure for holding node source data
         var photo_data = []; // structure for holding node photo data
         var URL_data = []; // structure for holding node URL data
         var link_data = []; // structure for holding node link data
@@ -359,16 +404,17 @@
         var lastselected;
         var sec = false;
 
-       /**
-       * Function for focusing camera on nodes related to selected node.
-       */
-        function funkce2() // TODO focus on related
+
+      /**
+      * Function for moving between related nodes.
+      */
+        function funkce2()  
         {
 
             var result = white_edges.filter(result => result.id === idselected);
             var result2 = white_edges.filter(result => result.to === idselected);
             result2.push({id: idselected , from: idselected , to: "ntd" , color:{color:'white'} , width: 5});
-            console.log(result);
+         
 
             if((result === undefined || result.length == 0) && (result2 === undefined || result2.length == 0))
             {
@@ -388,13 +434,15 @@
                         if((result2 != undefined && result2.length != 0))
                             sec = true;
 
+                      
                         fc2idx=0;
                     }
-                    else if(fc2idx >= result2.length )
+                    else if(fc2idx >= result2.length && sec == true)
                     {
                         if((result != undefined && result.length != 0))
                             sec = false;
 
+                      
                         fc2idx=0;
                     }
                    
@@ -420,9 +468,9 @@
                     nodeId = result2[fc2idx].from;
                 }
                 
-                console.log("strange.jpg" + nodeId);
+             
                 var options = {
-                    // position: {x:positionx,y:positiony}, // this is not relevant when focusing on nodes
+             
                     scale: 1.0,
                     offset: {x:0,y:0},
                     animation: {
@@ -439,15 +487,15 @@
 
         var hideedge = false;
 
-       /**
-       * Function for switching between visualizing and hiding edges.
-       */
+        /**
+      * Function for displaying and hiding edges.
+      */
         function funkce3()
         {
            
-            if(hide == false)
+            if(hideedge == false)
             {
-                console.log("nice");
+               
                 hideedge = true;
                 network.setOptions({edges:{hidden:true}});
             }               
@@ -544,7 +592,7 @@
         */
         function delet(idf)
         {
-            alert(idf);
+
             var str = "";
             var len = li_sources.length;
             var ck = false;
@@ -593,7 +641,6 @@
             // updateValues();
             var datum = document.getElementById("para").value;
             console.log(datum);
-
             var result = cam_node_dates.filter(result => result.date === datum);
             console.log(result);
 
@@ -621,7 +668,7 @@
                         easingFunction: 'easeInQuad'
                     }
                 };
-
+              
                 network.focus(nodeId,options);
             }
 
@@ -644,14 +691,14 @@
                 loadedField.push({idx:id});
             }
 
-      
-           
+          
+
             design2(id);
            
             if(sit == 1)
             {
 
-             
+                document.getElementById('source_show').innerHTML = node.source;
                 var result = text_data.find(result => result.id === id);
                 if(result === undefined)
                     document.getElementById('text_field').innerHTML = "Textová data neobsažena";
@@ -749,6 +796,8 @@
             }
             visnodes = new vis.DataSet(nodes);
             visedges = new vis.DataSet(edges);
+
+       
           
             var container = document.getElementById('canv');
             var data = {
@@ -776,9 +825,11 @@
                 physics: false,
             
                 edges: {
-                   // width: 2
+           
                     smooth:{type:edge_type},
                 
+
+
                 }
             };
             network = new vis.Network(container, data, options);
@@ -802,11 +853,8 @@
                 if(this.getNodeAt(params.pointer.DOM) != undefined)
                     display_data(this.getNodeAt(params.pointer.DOM),2);
             });
+
             
-            network.on("selectNode", function (params) {
-                console.log('selectEdge Event:', params);
-                idselected = this.getNodeAt(params.pointer.DOM);
-            });
 
         }
 

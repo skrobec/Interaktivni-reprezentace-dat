@@ -1,10 +1,3 @@
-/**
- * rdf4j-client.js
- * A client library for the RDF4J server.
- * 
- * (c) 2017 Radek Burget <burgetr@fit.vutbr.cz>
- * 
- */
 
 
 /**
@@ -75,7 +68,7 @@ RDFClient.prototype.getDateBounds = function (query) {
   
             var bindings = data.results.bindings;
             var date = bindings[0].o.value;
-            console.log(date);
+
             resolve(date);
         }).catch(function (reason) {
             reject(reason);
@@ -94,7 +87,7 @@ RDFClient.prototype.getAllLinks = function (query) {
         p.then(function (data) {
             resolve(data);
         }).catch(function (reason) {
-            console.log("ebin");
+
             reject(reason);
         });
     });
