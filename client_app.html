@@ -281,7 +281,7 @@
             }
             else if (start.length > 10 || end.length > 10)
             {
-                alert("Prosím zadejte spravnou hodnotu");
+                alert("Prosím zadejte spravnou hodnotu1");
                 return 0;
             }
             else 
@@ -319,16 +319,36 @@
                 startDate = new Date(start);
                 endDate = new Date(end);
               
-                TA.setDateSpan(startDate, endDate);
-
+             
                 var compareStart = new Date(startTime);
                 var compareEnd = new Date(endTime);
                 console.log(startDate.getTime() + " test " + compareStart.getTime() );
                 if(startDate.getTime() < compareStart.getTime() || endDate.getTime() > compareEnd.getTime())
                 {
-                    alert("Prosím zadejte spravnou hodnotu");
+                    alert("Prosím zadejte spravnou hodnotu2");
                     return 0;
                 }
+                var checkstart = start.split("-");
+                var checkend = end.split("-");
+                if(checkstart[0] > 2030 || checkend[0] > 2030 || checkstart[0] < 0 || checkend[0] < 0)
+                {
+                    alert("Prosím zadejte spravnou hodnotu3");
+                    return 0;
+                }
+                else if(checkstart[1] > 12 || checkend[1] > 12 || checkstart[1] < 1 || checkend[1] < 1)
+                {
+                    alert("Prosím zadejte spravnou hodnotu4");
+                    return 0;
+                }
+                else if(checkstart[2] > 31 || checkend[2] > 31 || checkstart[2] < 1 || checkend[2] < 1)
+                {
+                    alert("Prosím zadejte spravnou hodnotu5");
+                    return 0;
+                }
+
+
+               TA.setDateSpan(startDate, endDate);
+
                
             }
                 
@@ -336,8 +356,7 @@
             document.getElementById("endsource").value = '';
         
 
-            startTime = start;
-            endTime = end;
+           
             document.getElementById('timeadder').innerHTML = '<li id=' + 1 +'><a class=source_links onclick=deletTime(' +1+') href=#>'  + start +'</li>';
             document.getElementById('timeadder').innerHTML += '<li id=' + 2 +'><a class=source_links onclick=deletTime(' +2+') href=#>'  + end +'</li>';
         
