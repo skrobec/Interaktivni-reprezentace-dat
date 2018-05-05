@@ -423,7 +423,7 @@ function getDays() // function for computing number of days and preparation of d
     last = date_array[0].getUTCDate();
 
 
-    day_pos.push(last + "." + (date_array[0].getUTCMonth() + 1) );
+    day_pos.push(last + "." + (date_array[0].getUTCMonth() + 1) + "." +   date_array[0].getUTCFullYear());
     console.log(date_array);
     for (var i =0; i < date_array.length ; i++)
     {
@@ -436,7 +436,7 @@ function getDays() // function for computing number of days and preparation of d
             var month = date_array[i].getUTCMonth() + 1; //months from 1-12
             var day = date_array[i].getUTCDate();
             var year = date_array[i].getUTCFullYear();
-            var com_date = day + "." + month; 
+            var com_date = day + "." + month + "." + year; 
 
            day_pos.push(com_date);
 
@@ -518,7 +518,7 @@ function positioning(){ // positioning nodes, creation of day sectors
                 
 
 
-            var comp_day = array_of_source_nodes[i][j].date.getUTCDate() + "." + (array_of_source_nodes[i][j].date.getUTCMonth() + 1);
+            var comp_day = array_of_source_nodes[i][j].date.getUTCDate() + "." + (array_of_source_nodes[i][j].date.getUTCMonth() + 1) + "." + (array_of_source_nodes[i][j].date.getUTCFullYear());
 
               if (day_pos[day_counter] != comp_day ) // leaving cycle if day doesnt belong to current sector 
               {                
@@ -657,8 +657,3 @@ function positioning(){ // positioning nodes, creation of day sectors
     
     invoke(); // Calling function to visualise the node network. 
 }
-
-
-
-
-

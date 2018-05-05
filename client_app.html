@@ -131,7 +131,7 @@
                     </select>
                 </th>
                 <th width="200px">
-                    <input placeholder='Parametr' class='form-control funct' name='input' id=para type='text' />
+                    <input placeholder='DD.MM.YYYY' class='form-control funct' name='input' id=para type='text' />
                 </th>
                 <th width="200px">
                     <input class='form-control funct' onclick="choser()" form=sel type=submit value='Provést' />
@@ -281,7 +281,7 @@
             }
             else if (start.length > 10 || end.length > 10)
             {
-                alert("Prosím zadejte spravnou hodnotu1");
+                alert("Prosím zadejte spravnou hodnotu");
                 return 0;
             }
             else 
@@ -325,24 +325,24 @@
                 console.log(startDate.getTime() + " test " + compareStart.getTime() );
                 if(startDate.getTime() < compareStart.getTime() || endDate.getTime() > compareEnd.getTime())
                 {
-                    alert("Prosím zadejte spravnou hodnotu2");
+                    alert("Prosím zadejte spravnou hodnotu");
                     return 0;
                 }
                 var checkstart = start.split("-");
                 var checkend = end.split("-");
                 if(checkstart[0] > 2030 || checkend[0] > 2030 || checkstart[0] < 0 || checkend[0] < 0)
                 {
-                    alert("Prosím zadejte spravnou hodnotu3");
+                    alert("Prosím zadejte spravnou hodnotu");
                     return 0;
                 }
                 else if(checkstart[1] > 12 || checkend[1] > 12 || checkstart[1] < 1 || checkend[1] < 1)
                 {
-                    alert("Prosím zadejte spravnou hodnotu4");
+                    alert("Prosím zadejte spravnou hodnotu");
                     return 0;
                 }
                 else if(checkstart[2] > 31 || checkend[2] > 31 || checkstart[2] < 1 || checkend[2] < 1)
                 {
-                    alert("Prosím zadejte spravnou hodnotu5");
+                    alert("Prosím zadejte spravnou hodnotu");
                     return 0;
                 }
 
