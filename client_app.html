@@ -34,7 +34,7 @@
             </div>
             <ul class='nav navbar-nav'>
                 <li><a href=#med>Interaktivní reprezentace dat</a></li>
-                <li><a href="http://localhost/timeline-analyzer-master/timeline-analyzer-master/timeline-analyzer-web/src/main/webapp/bp.pdf">Dokumentace</a></li>
+                <li><a href="bp.pdf">Dokumentace</a></li>
               
 
 
@@ -323,7 +323,8 @@
                 var compareStart = new Date(startTime);
                 var compareEnd = new Date(endTime);
                 console.log(startDate.getTime() + " test " + compareStart.getTime() );
-                if(startDate.getTime() < compareStart.getTime() || endDate.getTime() > compareEnd.getTime())
+                console.log(endDate.getTime() + " test " + compareEnd.getTime() );
+                if(startDate.getTime() < compareStart.getTime() || (endDate.getTime() - 86400000) > compareEnd.getTime())
                 {
                     alert("Prosím zadejte spravnou hodnotu");
                     return 0;
